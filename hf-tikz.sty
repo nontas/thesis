@@ -1,0 +1,253 @@
+%%
+%% This is file `hf-tikz.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% hf-tikz.dtx  (with options: `package')
+%% * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+%% * hf-tikz --- A simple way to highlight formulas and formula parts.
+%% *
+%% * E-mail: claudio dot fiandrino at gmail dot com
+%% *
+%% * Released under the LaTeX Project Public License v1.3c or later
+%% *
+%% * See http://www.latex-project.org/lppl.txt
+%% * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+%% 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{hf-tikz}[2012/12/18 v0.1a A simple way to highlight formulas and formula parts.]
+
+\RequirePackage{tikz}
+\usetikzlibrary{shadings}
+\RequirePackage{xparse}
+\RequirePackage{etoolbox}
+%% Colors
+
+\definecolor{fancybrown}{RGB}{255,216,197}
+\definecolor{fancyviolet}{RGB}{197,122,197}
+
+\newcommand{\fcol}{fancybrown}
+\newcommand{\bcol}{fancyviolet}
+
+%% Package option
+
+\newbool{fill}
+\booltrue{fill}
+\DeclareOption{nofill}{\boolfalse{fill}}
+
+\DeclareOption{customcolors}{
+\def\hfsetfillcolor#1{\renewcommand{\fcol}{#1}}
+\def\hfsetbordercolor#1{\renewcommand{\bcol}{#1}}
+}
+
+\newbool{shade}
+\boolfalse{shade}
+\DeclareOption{shade}{\booltrue{shade}}
+
+\newbool{beamer}
+\boolfalse{beamer}
+\DeclareOption{beamer}{\booltrue{beamer}}
+
+\ProcessOptions
+%% Settings
+
+\ifbool{beamer}{%true
+ \newcounter{jumping}
+ \resetcounteronoverlays{jumping}
+
+ \def\jump@setbb#1#2#3{%
+   \@ifundefined{jump@#1@maxbb}{%
+     \expandafter\gdef\csname jump@#1@maxbb\endcsname{#3}%
+   }{%
+     \csname jump@#1@maxbb\endcsname
+     \pgf@xa=\pgf@x
+     \pgf@ya=\pgf@y
+     #3
+     \pgfmathsetlength\pgf@x{max(\pgf@x,\pgf@xa)}%
+     \pgfmathsetlength\pgf@y{max(\pgf@y,\pgf@ya)}%
+     \expandafter\xdef\csname jump@#1@maxbb\endcsname{\noexpand\pgfpoint{\the\pgf@x}{\the\pgf@y}}%
+   }
+   \@ifundefined{jump@#1@minbb}{%
+     \expandafter\gdef\csname jump@#1@minbb\endcsname{#2}%
+   }{%
+     \csname jump@#1@minbb\endcsname
+     \pgf@xa=\pgf@x
+     \pgf@ya=\pgf@y
+     #2
+     \pgfmathsetlength\pgf@x{min(\pgf@x,\pgf@xa)}%
+     \pgfmathsetlength\pgf@y{min(\pgf@y,\pgf@ya)}%
+     \expandafter\xdef\csname jump@#1@minbb\endcsname{\noexpand\pgfpoint{\the\pgf@x}{\the\pgf@y}}%
+   }
+ }
+
+ \tikzset{%
+   remember picture with id/.style={%
+     remember picture,
+     overlay,
+     save picture id=#1,
+   },
+   save picture id/.code={%
+     \edef\pgf@temp{#1}%
+     \immediate\write\pgfutil@auxout{%
+       \noexpand\savepointas{\pgf@temp}{\pgfpictureid}}%
+   },
+   if picture id/.code args={#1#2#3}{%
+     \@ifundefined{save@pt@#1}{%
+       \pgfkeysalso{#3}%
+     }{
+       \pgfkeysalso{#2}%
+     }
+   },
+   onslide/.code args={<#1>#2}{%
+     \only<#1>{\pgfkeysalso{#2}}%
+   },
+   alt/.code args={<#1>#2#3}{%
+     \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}}%
+   },
+   stop jumping/.style={
+     execute at end picture={%
+       \stepcounter{jumping}%
+       \immediate\write\pgfutil@auxout{%
+         \noexpand\jump@setbb{\the\value{jumping}}{\noexpand\pgfpoint{\the\pgf@picminx}{\the\pgf@picminy}}{\noexpand\pgfpoint{\the\pgf@picmaxx}{\the\pgf@picmaxy}}
+       },
+       \csname jump@\the\value{jumping}@maxbb\endcsname
+       \path (\the\pgf@x,\the\pgf@y);
+       \csname jump@\the\value{jumping}@minbb\endcsname
+       \path (\the\pgf@x,\the\pgf@y);
+     },
+   }
+ }
+}{% false
+ \tikzset{%
+   remember picture with id/.style={%
+     remember picture,
+     overlay,
+     save picture id=#1,
+   },
+   save picture id/.code={%
+     \edef\pgf@temp{#1}%
+     \immediate\write\pgfutil@auxout{%
+       \noexpand\savepointas{\pgf@temp}{\pgfpictureid}}%
+   },
+   if picture id/.code args={#1#2#3}{%
+     \@ifundefined{save@pt@#1}{%
+       \pgfkeysalso{#3}%
+     }{
+       \pgfkeysalso{#2}%
+     }
+   }
+ }
+}
+
+\def\savepointas#1#2{%
+  \expandafter\gdef\csname save@pt@#1\endcsname{#2}%
+}
+
+\def\tmk@labeldef#1,#2\@nil{%
+  \def\tmk@label{#1}%
+  \def\tmk@def{#2}%
+}
+
+\tikzdeclarecoordinatesystem{pic}{%
+  \pgfutil@in@,{#1}%
+  \ifpgfutil@in@%
+    \tmk@labeldef#1\@nil
+  \else
+    \tmk@labeldef#1,(0pt,0pt)\@nil
+  \fi
+  \@ifundefined{save@pt@\tmk@label}{%
+    \tikz@scan@one@point\pgfutil@firstofone\tmk@def
+  }{%
+  \pgfsys@getposition{\csname save@pt@\tmk@label\endcsname}\save@orig@pic%
+  \pgfsys@getposition{\pgfpictureid}\save@this@pic%
+  \pgf@process{\pgfpointorigin\save@this@pic}%
+  \pgf@xa=\pgf@x
+  \pgf@ya=\pgf@y
+  \pgf@process{\pgfpointorigin\save@orig@pic}%
+  \advance\pgf@x by -\pgf@xa
+  \advance\pgf@y by -\pgf@ya
+  }%
+}
+\ifbool{beamer}{%true
+ \ifbool{fill}{%true-fill
+  \ifbool{shade}{%true-shade
+   \NewDocumentCommand{\tikzmarkin}{r<> d[] m D(){0.1,-0.18} D(){-0.1,0.35}}{%
+   \IfNoValueTF{#2}{%true-val
+      \only<#1>{\tikz[remember picture,overlay]
+      \draw[line width=1pt,rectangle,rounded corners,fill=\fcol,draw=\bcol]
+      (pic cs:#3) ++(#4) rectangle (#5) node [anchor=base] (#3){}
+      ;}
+     }{%false-val
+      \only<#1>{\tikz[remember picture,overlay]
+      \draw[line width=1pt,rectangle,rounded corners,fill=\fcol,#2,draw=\bcol]
+      (pic cs:#3) ++(#4) rectangle (#5) node [anchor=base] (#3){}
+      ;}}
+     }
+  }{%false-shade
+     \NewDocumentCommand{\tikzmarkin}{r<> m D(){0.1,-0.18} D(){-0.1,0.35}}{%
+     \only<#1>{\tikz[remember picture,overlay]
+     \draw[line width=1pt,rectangle,rounded corners,fill=\fcol,draw=\bcol]
+     (pic cs:#2) ++(#3) rectangle (#4) node [anchor=base] (#2){}
+     ;}}
+  }
+ }{%false-fill
+  \NewDocumentCommand{\tikzmarkin}{r<> m D(){0.075,-0.18} D(){-0.075,0.35}}{%
+  \only<#1>{\tikz[remember picture,overlay]
+  \draw[line width=1pt,rectangle,rounded corners,draw=\bcol]
+  (pic cs:#2) ++(#3) rectangle (#4) node [anchor=base] (#2){}
+  ;}}
+ }
+}{%false-beamer
+ \ifbool{fill}{%true-fill
+  \ifbool{shade}{%true-shade
+   \NewDocumentCommand{\tikzmarkin}{d[] m D(){0.1,-0.18} D(){-0.1,0.35}}{%
+   \IfNoValueTF{#1}{%true-val
+      \tikz[remember picture,overlay]
+      \draw[line width=1pt,rectangle,rounded corners,fill=\fcol,draw=\bcol]
+      (pic cs:#2) ++(#3) rectangle (#4) node [anchor=base] (#2){}
+      ;
+   }{%false-val
+   \tikz[remember picture,overlay]
+   \draw[line width=1pt,rectangle,rounded corners,fill=\fcol,#1,draw=\bcol]
+   (pic cs:#2) ++(#3) rectangle (#4) node [anchor=base] (#2){}
+   ;}}
+  }{%false-shade
+   \NewDocumentCommand{\tikzmarkin}{m D(){0.1,-0.18} D(){-0.1,0.35}}{%
+   \tikz[remember picture,overlay]
+   \draw[line width=1pt,rectangle,rounded corners,fill=\fcol,draw=\bcol]
+   (pic cs:#1) ++(#2) rectangle (#3) node [anchor=base] (#1){}
+   ;}
+  }
+ }{%false-fill
+  \NewDocumentCommand{\tikzmarkin}{m D(){0.075,-0.18} D(){-0.075,0.35}}{%
+  \tikz[remember picture,overlay]
+  \draw[line width=1pt,rectangle,rounded corners,draw=\bcol]
+  (pic cs:#1) ++(#2) rectangle (#3) node [anchor=base] (#1){}
+  ;}
+ }
+}
+
+\newcommand\tikzmarkend[2][]{%
+\tikz[remember picture with id=#2] #1;}
+
+%% 
+%% Copyright (C) 2012 by Claudio Fiandrino <claudio.fiandrino@gmail.com>
+%% 
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License (LPPL), either
+%% version 1.3c of this license or (at your option) any later
+%% version.  The latest version of this license is in the file:
+%% 
+%% http://www.latex-project.org/lppl.txt
+%% 
+%% This work is "maintained" (as per LPPL maintenance status) by
+%% Claudio Fiandrino.
+%% 
+%% This work consists of the file  hf-tikz.dtx
+%% and the derived files           hf-tikz.ins and
+%%                                 hf-tikz.pdf
+%%                                 hf-tikz.sty.
+%% 
+%%
+%% End of file `hf-tikz.sty'.

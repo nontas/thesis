@@ -1,0 +1,147 @@
+% !TEX root =  ../../../../thesis.tex
+\subsection{Graphical Model}
+\label{subsec:graphical_model}
+Let us define an undirected graph between the $n$ landmark points of an object
+as
+%%%%%%%%%%%%%%
+\begin{equation}
+  G = (V, E)
+\end{equation}
+%%%%%%%%%%%%%%
+where $V=\left\lbrace v_1, v_2, \ldots, v_n\right\rbrace$ is the set of $n$
+vertexes and there is an edge $(v_i,v_j) \in E$ for each pair of connected
+landmark points. Moreover, let us assume that we have a set of random variables
+%%%%%%%%%%%%%%
+\begin{equation}
+  X = \left\lbrace X_i \right\rbrace,~\forall i:v_i\in V
+\end{equation}
+%%%%%%%%%%%%%%
+which represent an abstract feature vector of length $k$ extracted from each vertex $v_i$, \ie, $\mathbf{x}_i, i:v_i\in V$ (e.g. the location coordinates, appearance vector etc.).
+%
+We model the likelihood probability of two random variables that correspond to connected vertexes with a normal distribution
+%%%%%%%%%%%%%%
+\begin{equation}
+  \begin{array}{r}
+    p(X_i=\mathbf{x}_i, X_j=\mathbf{x}_j | G) \sim \mathcal{N}(\boldsymbol{\mu}_{ij}, \boldsymbol{\Sigma}_{ij}),\\
+    \forall i,j:(v_i,v_j)\in E
+    \label{equ:pairwise_distribution}
+  \end{array}
+\end{equation}
+%%%%%%%%%%%%%%
+where $\boldsymbol{\mu}_{ij}$ is the $2k\times1$ mean vector and
+$\boldsymbol{\Sigma}_{ij}$ is the $2k\times2k$ covariance matrix.
+Consequently, the cost of observing a set of feature vectors
+$\{\mathbf{x}_i\},\forall i:v_i\in V$ can be computed using a Mahalanobis
+distance per edge, \ie
+%%%%%%%%%%%%%%
+\begin{equation}
+  \sum_{\forall i,j:(v_i,v_j)\in E}
+  \left(
+  \left[ \begin{array}{c}\mathbf{x}_i\\ \mathbf{x}_j\end{array}\right] - \boldsymbol{\mu}_{ij}
+  \right)^{\mathsf{T}}
+  \boldsymbol{\Sigma}_{ij}^{-1} \left(
+  \left[ \begin{array}{c}\mathbf{x}_i\\\mathbf{x}_j\end{array}\right] - \boldsymbol{\mu}_{ij}
+  \right)
+  \label{equ:cost_sum_form}
+\end{equation}
+%%%%%%%%%%%%%%
+In practice, the computational cost of computing Eq.~\ref{equ:cost_sum_form} is
+too expensive because it requires looping over all the graph's edges.
+Especially in the case of a complete graph, it makes it impossible to perform
+inference in real time.
+
+Inference can be much faster if we convert this cost to an equivalent matrical
+form as
+%%%%%%%%%%%%%%
+\begin{equation}
+  \left(\mathbf{x} - \boldsymbol{\mu}\right)^{\mathsf{T}} \boldsymbol{\Sigma}^{-1} \left(\mathbf{x} - \boldsymbol{\mu}\right)
+  \label{equ:cost_mat_form}
+\end{equation}
+%%%%%%%%%%%%%%
+This is equivalent to modeling the set of random variables $X$ with a Gaussian
+Markov Random Field (GMRF)~\cite{rue2005gaussian}. A GMRF is described by an
+undirected graph, where the vertexes stand for random variables and the edges
+impose statistical constraints on these random variables. Thus, the GMRF models
+the set of random variables with a multivariate normal distribution
+%%%%%%%%%%%%%%
+\begin{equation}
+  p(X=\mathbf{x} | G)\sim\mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})
+  \label{equ:gmrf_distribution}
+\end{equation}
+%%%%%%%%%%%%%%
+where
+%%%%%%%%%%%%%%
+\begin{equation}
+  \boldsymbol{\mu} = \left[\boldsymbol{\mu}_1^{\mathsf{T}}, \ldots, \boldsymbol{\mu}_n^T\right]^{\mathsf{T}} = \left[E(X_1)^{\mathsf{T}}, \ldots, E(X_n)^{\mathsf{T}}\right]^{\mathsf{T}}
+\end{equation}
+%%%%%%%%%%%%%%
+is the $nk\times1$ mean vector and $\boldsymbol{\Sigma}$ is the $nk\times nk$
+overall covariance matrix. We denote by $\mathbf{Q}$ the block-sparse precision
+matrix that is the inverse of the covariance matrix, \ie,
+\begin{equation}
+  \mathbf{Q}=\boldsymbol{\Sigma}^{-1}
+\end{equation}
+By applying the GMRF we make the assumption that the random variables satisfy the three Markov properties (pairwise, local and global) and that the blocks of the precision matrix that correspond to disjoint vertexes are zero, \ie,
+\begin{equation}
+  \mathbf{Q}_{ij} = \mathbf{0}_{k\times k},~\forall i,j:(v_i,v_j)\notin E
+\end{equation}
+By defining $\mathcal{G}_i=\{(i-1)k+1,(i-1)k+2,\ldots,ik\}$
+to be a set of indices for sampling a matrix and by equalizing
+Eqs.~\ref{equ:cost_sum_form} and~\ref{equ:cost_mat_form} we can prove that
+the structure of the precision matrix is
+%%%%%%%%%%%%%%
+\begin{equation}
+\mathbf{Q} = \left\lbrace
+\begin{aligned}
+&\sum_{\forall j:(v_i,v_j)\in E}\boldsymbol{\Sigma}_{ij}^{-1}(\mathcal{G}_1,\mathcal{G}_1) + \\
+& \sum_{\forall j:(v_j,v_i)\in E}\boldsymbol{\Sigma}_{ji}^{-1}(\mathcal{G}_2,\mathcal{G}_2),~\forall v_i\in V, & \text{at}~(\mathcal{G}_i,\mathcal{G}_i)\\
+& \boldsymbol{\Sigma}_{ij}^{-1}(\mathcal{G}_1,\mathcal{G}_2),~\forall i,j:(v_i,v_j)\in E, & \text{at}~(\mathcal{G}_i,\mathcal{G}_j)\\
+& & \text{and}~(\mathcal{G}_j,\mathcal{G}_i)\\
+& 0, & \text{elsewhere}
+\end{aligned}\right.
+\label{equ:precision_structure_1}
+\end{equation}
+%%%%%%%%%%%%%%
+%
+
+Using the same assumptions and given a directed graph (cyclic or acyclic) $G=(V,E)$, where $(v_i,v_j)\in E$ denotes the relation of $v_i$ being the parent of $v_j$, we can show that
+%%%%%%%%%%%%%%
+\begin{equation}
+\begin{aligned}
+&\left(\mathbf{x} - \boldsymbol{\mu}\right)^{\mathsf{T}}
+\mathbf{Q} \left(\mathbf{x} - \boldsymbol{\mu}\right) = \\
+& = \sum_{\forall i,j:(v_i,v_j)\in E}
+\left(
+\mathbf{x}_i-\mathbf{x}_j - \boldsymbol{\mu}_{ij}
+\right)^{\mathsf{T}}
+\boldsymbol{\Sigma}_{ij}^{-1} \left( \mathbf{x}_i-\mathbf{x}_j - \boldsymbol{\mu}_{ij}
+\right)
+\end{aligned}
+\label{equ:deformation_gmrf}
+\end{equation}
+%%%%%%%%%%%%%%
+is true if
+%
+%%%%%%%%%%%%%%
+\begin{equation}
+\mathbf{Q} = \left\lbrace
+\begin{aligned}
+&\sum_{\forall j:(v_i,v_j)\in E}\boldsymbol{\Sigma}_{ij}^{-1} + \\
+& \sum_{\forall j:(v_j,v_i)\in E}\boldsymbol{\Sigma}_{ji}^{-1},~\forall v_i\in V, & \text{at}~(\mathcal{G}_i,\mathcal{G}_i)\\
+& -\boldsymbol{\Sigma}_{ij}^{-1},~\forall i,j:(v_i,v_j)\in E, & \text{at}~(\mathcal{G}_i,\mathcal{G}_j)\\
+& & \text{and}~(\mathcal{G}_j,\mathcal{G}_i)\\
+& 0, & \text{elsewhere}
+\end{aligned}\right.
+\label{equ:precision_structure_2}
+\end{equation}
+%%%%%%%%%%%%%%
+where
+$\boldsymbol{\mu}_{ij} = E(X_i-X_j)$ and
+%%%%%%%%%%%%%%
+\begin{equation}
+  \boldsymbol{\mu} = \left[ \boldsymbol{\mu}_1^{\mathsf{T}}, \ldots, \boldsymbol{\mu}_n^{\mathsf{T}} \right]^{\mathsf{T}} = \left[ E(X_1)^{\mathsf{T}}, \ldots, E(X_n)^{\mathsf{T}}\right]^{\mathsf{T}}
+\end{equation}
+%%%%%%%%%%%%%%
+In this case, if $G$ is a tree, then we have a Bayesian network.
+Please refer to Appendix~\ref{sec:gmrf_proof} for detailed proofs of
+Eqs.~\ref{equ:precision_structure_1} and~\ref{equ:precision_structure_2}.

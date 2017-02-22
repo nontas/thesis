@@ -1,0 +1,117 @@
+% !TEX root =  ../../thesis.tex
+% Menpo logo
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.156\linewidth]{figures/introduction/menpo/menpo}
+\includegraphics[width=0.156\linewidth]{figures/introduction/menpo/menpofit}
+\includegraphics[width=0.156\linewidth]{figures/introduction/menpo/menpodetect}
+\includegraphics[width=0.156\linewidth]{figures/introduction/menpo/menpo3d}
+\includegraphics[width=0.156\linewidth]{figures/introduction/menpo/menpowidgets}
+\includegraphics[width=0.156\linewidth]{figures/introduction/menpo/menpocli}
+\caption{The Menpo Project~\cite{menpo2014,alabort2016menpo} is an open-source platform that provides solutions for all the stages of 2D and 3D Deformable Modeling (\url{http://www.menpo.org/}). It includes implementations for all the methodologies proposed in this thesis.}
+\label{fig:MenpoProject}
+\end{figure}
+%
+\section{The Menpo Project}\label{sec:menpo}
+An implementation of all the methodologies proposed in this Ph.D. thesis is
+provided within the Menpo Project\footnote{The Menpo Project is an open-source
+platform for all the stages of 2D and 3D Deformable Modeling. Website:
+\url{http://www.menpo.org/}. Github:
+\url{https://github.com/menpo/}}\textsuperscript{,}\footnote{The Menpo Project
+is created and maintained by James Booth, Patrick Snape, Joan Alabort-i-Medina
+and myself.}~\cite{menpo2014,alabort2016menpo}.
+The Menpo Project is a set of open-source BSD licensed Python frameworks and
+associated tooling that provide end-to-end solutions for 2D and 3D Deformable
+Modeling. It aims to enable researchers, practitioners and students to easily
+annotate new data sources and to investigate existing datasets. Of most
+interest to the Computer Vision is the fact that the Menpo Project contains
+completely open source implementations of a number of state-of-the-art
+algorithms for face detection and deformable model building. Characteristic
+examples of widely used state-of-the-art deformable model algorithms are Active
+Appearance Models
+(AAMs)~\cite{matthews2004active,antonakos2015feature,antonakos2014hog,tzimiropoulos2014gauss,tzimiropoulos2012generic,tzimiropoulos2014active,alabort2014bayesian},
+Constrained Local Models~\cite{saragih2011deformable,asthana2015pixels} and
+Supervised Descent Method~\cite{xiong2013supervised,asthana2014incremental}.
+
+There is still a noteworthy lack of high quality open source software in the
+field of Deformable Modeling. Most existing packages are encrypted, compiled,
+non-maintained, partly documented, badly structured or difficult to modify.
+This makes them unsuitable for adoption in cutting edge scientific research.
+Consequently, research becomes even more difficult since performing a fair
+comparison between existing methods is, in most cases, infeasible. For this
+reason, the Menpo Project represents an important contribution towards open
+science in the area. Additionally, it is important for Deformable Modeling to
+move beyond the established area of facial annotations and to extend to a wide
+variety of deformable object classes. Menpo can accelerate this progress by
+providing all of our tools completely free and permissively licensed.
+
+The core functionality provided by the Menpo Project revolves around a powerful
+and flexible cross-platform framework written in Python. This framework has a
+number of subpackages, all of which rely on a core package called
+\texttt{menpo}. The specialized subpackages are all based on top of
+\texttt{menpo} and provide state-of-the-art Computer Vision algorithms in a
+variety of areas (\texttt{menpofit}, \texttt{menpodetect}, \texttt{menpo3d},
+\texttt{menpowidgets}).
+
+\begin{itemize}
+  \item \texttt{menpo}: This is a general purpose package that is designed from
+  the ground up to make importing, manipulating and visualizing image and mesh
+  data as simple as possible. In particular, we focus on data that has been
+  annotated with a set of sparse landmarks. This form of data is common within
+  the fields of Machine Learning and Computer Vision and is a prerequisite for
+  constructing Deformable Models. All \texttt{menpo} core types are
+  landmarkable and visualizing these landmarks is a primary concern of the
+  \texttt{menpo} library. Since landmarks are first class citizens within
+  \texttt{menpo}, it makes tasks like masking images, cropping images within
+  the bounds of a set of landmarks, spatially transforming landmarks,
+  extracting patches around landmarks and aligning images simple.
+
+  \item \texttt{menpofit}: This package provides all the necessary tools for
+  training and fitting a large variety of state-of-the-art Deformable Models
+  under a unified framework, including the ones presented in this thesis. The
+  provided methods are:
+  %%%%%%%%%%%%%%%
+  \begin{itemize}
+    \item Active Appearance Model
+    (AAM)~\cite{matthews2004active,antonakos2015feature,antonakos2014hog,tzimiropoulos2014gauss,tzimiropoulos2012generic,tzimiropoulos2014active,alabort2014bayesian}
+
+    \item Supervised Descent Method
+    (SDM)~\cite{xiong2013supervised,asthana2014incremental}
+
+    \item Ensemble of Regression Trees (ERT) (powered by Dlib\footnote{Dlib
+    Machine Learning toolkit:
+    \url{http://dlib.net/}}~\cite{king2009dlib})~\cite{kazemi2014one}
+
+    \item Constrained Local Model
+    (CLM)~\cite{saragih2011deformable,asthana2015pixels}
+
+    \item Active Shape Model (ASM)~\cite{cootes1995active}
+
+    \item Active Pictorial Structures (APS)~\cite{antonakos2015active}
+
+    \item Lucas-Kanade (LK) and Active Template Model
+    (ATM)~\cite{baker2004lucas,baker2003lucas,lucey2013fourier,antonakos2015feature}
+  \end{itemize}
+  %%%%%%%%%%%%%%%
+
+  \item \texttt{menpodetect}: This package contains methodologies for
+  performing generic object detection in terms of a bounding box. The provided
+  techniques include Viola-Jones object
+  detector~\cite{viola2001rapid,viola2004robust,viola2005detecting,bradski2000opencv}, Support Vector Machines with HOG
+  features~\cite{king2009dlib,king2015max}, Pico~\cite{markuvs2013object} and
+  Deformable Part Model (DPM)~\cite{felzenszwalb2010object,mathias2014face}.
+
+  \item \texttt{menpo3d}: It provides an open source implementation of 3D
+  Morphable Models in-the-wild~\cite{blanz1999morphable}, as well as useful
+  tools for importing, visualizing and transforming 3D data.
+
+  \item \texttt{menpowidgets}: Package that includes widgets for ``fancy''
+  visualization of \texttt{menpo} objects. It provides user friendly,
+  aesthetically pleasing, interactive widgets for visualizing images, shapes,
+  landmarks, trained models and fitting results.
+
+  \item \texttt{menpocli}: Command Line Interface (CLI) for the Menpo Project
+  that allows to readily use pre-trained state-of-the-art \texttt{menpofit}
+  facial models.
+\end{itemize}
+%%%%%%%%%%%%%%%

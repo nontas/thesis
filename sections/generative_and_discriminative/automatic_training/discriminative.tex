@@ -1,0 +1,116 @@
+% !TEX root =  ../../../thesis.tex
+\subsection{Robust Discriminative AAM}
+\label{sec:automatic_training:discriminative}
+Motivated by the recent application of a cascade of
+regressors~\cite{dollar2010cascaded,xiong2013supervised,cao2014face,saragih2006iterative}
+to discriminatively learn a model for face alignment, we propose a parametric
+discriminatively trained AAM. Even though discriminatively trained AAMs have
+appeared before, the difference between our method and, for
+example~\cite{saragih2006iterative}, is that we use simple cascaded linear
+regression, as in~\cite{xiong2013supervised}, and the robust component
+analysis~\cite{tzimiropoulos2012subspace}. Note that other feature descriptors
+can also be used, such as HOG~\cite{dalal2005histograms} and
+SIFT~\cite{lowe1999object}. Intuitively, the goal of the discriminative model
+is to move the generative model from the local minimum that it converged in the
+previous iteration and boost it towards a better minimum. We automatically
+select the appearance vectors on which it is trained so that as few outliers as
+possible are included. This selection is achieved by keeping the textures with
+the best $\ell_2^2$ norm fitting error.
+
+\subsubsection{Fitting Discriminative AAM}
+During the training procedure, the method aims to learn a number of $K$
+regression steps so that the initial shape parameters of all the training
+images converge to their ground-truth values. Each of these cascade solutions
+consists of a generic descent direction term $\mathbf{R}_k$ and a bias term
+$\mathbf{b}_k$. Given an unseen image, the fitting process involves $K$
+additive steps to find an updated vector of shape and similarity parameters
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{p}_k = \mathbf{p}_{k-1} + \mathbf{R}_{k-1} \mathbf{c}_{k-1} + \mathbf{b}_{k-1},~k=1,\ldots,K
+  \label{equ:parametersUpdate}
+\end{equation}
+%%%%%%%%%%%%%%
+where the appearance parameters are retrieved from the inverse projection of
+the image's warped feature-based texture to a given appearance subspace as in
+Eq.~\ref{equ:appearanceParametesInverse}. In the first step, the update
+%%%%%%%%%%%%%%
+\begin{equation}
+  \Delta\mathbf{p}_1=\mathbf{R}_0\mathbf{c}_0+\mathbf{b}_0
+\end{equation}
+%%%%%%%%%%%%%%
+is added to the initial parameters vectors as
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{p}_1=\mathbf{p}_0+\Delta\mathbf{p}_1
+\end{equation}
+%%%%%%%%%%%%%%
+The initial shape parameters vector $\mathbf{p}_0$ is computed from the image's
+bounding box, which practically initializes the rotation, translation and
+scaling values and leaves the rest equal to zero, thus
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{p}_0=\left[p_0^1,\ldots,p_0^4,\mathbf{0}^{1:n_s}\right]^{\mathsf{T}}
+\end{equation}
+%%%%%%%%%%%%%%
+The fitting algorithm has a real-time computational complexity of
+$\mathcal{O}((4+n_s)(n_a+2m))$ per iteration.
+
+\subsubsection{Training Discriminative AAM}
+Assume we have a set of $N$ training images $\{\mathbf{t}^i\}$, $i=1,\ldots,N$
+and their ground-truth shapes $\{\mathbf{s}^i_{tr}\}$ which correspond to a set
+of parameters $\{\mathbf{p}^i_{tr}\}$. For each image in the database, we
+generate $M$ different parameters initializations $\{\mathbf{p}^{i,j}_0\}$,
+$j=1,\ldots,M$. This is done by sampling $M$ different bounding boxes from a
+Normal distribution trained to describe the variance of various face detectors
+and retrieving the corresponding initialization shape parameters. To learn the
+sequence of generic descent directions and bias terms, we employ the Monte
+Carlo approximation of the $\ell_2^2$-loss which results in solving the
+least-squares problem
+%%%%%%%%%%%%%%
+\begin{equation}
+\argmin_{\mathbf{R}_k,\mathbf{b}_k}{\sum_{i=1}^N\sum_{j=1}^M \left\lVert \mathbf{p}_{tr}^i-\mathbf{p}_k^{i,j}-\mathbf{R}_k\mathbf{c}_k^{i,j}-\mathbf{b}_k \right\rVert^2}
+\end{equation}
+%%%%%%%%%%%%%%
+for $k=1,\ldots,K$. At each iteration and for each image, we update the
+parameters vector $\mathbf{p}_k^{i,j}$ using the rule of
+Eq.~\ref{equ:parametersUpdate} and compute the current appearance parameters
+from Eq.~\ref{equ:appearanceParametesInverse}.
+
+\subsubsection{Shapes Selection}
+Due to the discriminative nature of this AAM, the ground-truth shapes
+$\left\lbrace\mathbf{s}_{tr}^i\right\rbrace$ need to include as few outliers as
+possible. This is achieved by applying least-squares based Subspace
+Clustering~\cite{lu2012robust} on the final appearance model instances. Assume
+that we have estimated the optimal appearance parameters
+$\left\lbrace\mathbf{c}^i\right\rbrace$ by fitting the generative AAM to the
+discriminative database's training images
+$\left\lbrace \mathbf{t}^i\right\rbrace,~i=1,\ldots,N$. This set of parameters
+corresponds to a set of appearance model instances
+$\left\lbrace \mathbf{a}_{\mathbf{c}^i}\right\rbrace$. By concatenating these
+appearance vectors to a single matrix
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{A} = \left[ {\mathbf{a}_{\mathbf{c}^1}}^{\mathsf{T}}, {\mathbf{a}_{\mathbf{c}^2}}^{\mathsf{T}}, \ldots, {\mathbf{a}_{\mathbf{c}^N}}^{\mathsf{T}} \right]^{\mathsf{T}}
+\end{equation}
+%%%%%%%%%%%%%%
+we compute the optimal block-diagonal affinity matrix (graph) by solving the
+least-squares regression problem
+%%%%%%%%%%%%%%
+\begin{equation}
+  \min_{\mathbf{Z}} \left\lVert\mathbf{A}-\mathbf{A}\mathbf{Z}\right\rVert_F^2 + \mu\left\lVert\mathbf{Z}\right\rVert_F^2
+\end{equation}
+%%%%%%%%%%%%%%
+where $\|\cdot\|_F$ denotes the Frobenius norm. This problem has a closed form
+solution
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{Z} = \left( \mathbf{A}^{\mathsf{T}}\mathbf{A} + \mu \mathbf{I}_{eye} \right)^{-1} \mathbf{A}^{\mathsf{T}}\mathbf{A}
+\end{equation}
+%%%%%%%%%%%%%%
+This affinity matrix provides a measure of the similarity between each pair of
+appearance vectors. Then we apply Normalized Spectral Clustering (Normalized
+Cuts)~\cite{shi2000normalized} on
+$\mathbf{W}=\frac{1}{2}(\mathbf{Z}+\mathbf{Z}^{\mathsf{T}})$ to cluster our
+appearance vectors in two classes: those that include outliers and those that
+do not. Finally, we keep the shapes that correspond to the vectors without
+outliers, which ensures a discriminative model with better performance.

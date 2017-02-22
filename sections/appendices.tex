@@ -1,0 +1,330 @@
+% !TEX root =  ../thesis.tex
+\section{Precision matrix form of GMRF}\label{sec:gmrf_proof}
+Herein we provide a proof for the precision matrix formulations of
+Eqs.~\ref{equ:precision_structure_1} and~\ref{equ:precision_structure_2}. For
+this purpose, let us define an undirected graph $G=(V,E)$ of $n$ vertexes,
+where $V=\{v_1,v_2,\ldots,v_n\}$ is the set of vertexes and there is an edge
+$(v_i,v_j)\in E$ for each pair of connected vertexes.
+
+%%%%% PROPERTIES
+\subsection{Properties}\label{sec:properties}
+The following properties can be easily proved.\\
+\noindent\underline{Property 1}: If $\displaystyle\left\lbrace\begin{array}{l} f(i,j)\neq 0,\forall i,j:(v_i,v_j)\in E\\ f(i,j)=0,\forall i,j:(v_i,v_j)\notin E \end{array}\right.$
+then
+$\displaystyle\sum_{\forall i,j:(v_i,v_j)\in E}f(i,j)=\sum_{i=1}^{n-1}\sum_{j=i+1}^n f(i,j)$.
+
+\noindent\underline{Property 2}: $\displaystyle\sum_{\forall i,j:(v_i,v_j)\in E}f(i)+f(j)=\sum_{i=1}^nc_if(i)$, where $\displaystyle c_i=\sum_{\forall j:(v_i,v_j)\in E}1 + \sum_{\forall j:(v_j,v_i)\in E}1$ denotes the number of neighbours of vertex $v_i$.
+
+
+%%%%% PROOF 1
+\subsection{Proof 1}
+Herein we provide a proof for the precision matrix formulation of
+Eq.~\ref{equ:precision_structure_1}. Assume that we have a set of vectors of
+length $k$ that correspond to each vertex, \ie,
+$\mathbf{x}_i=[x_1^i,x_2^i,\ldots,x_k^i],\forall i:v_i\in V$. Moreover, let us
+assume a set of symmetrix pairwise precision matrices for each edge of the
+graph of size $2k\times2k$, that have the form
+%%%%%%%%%%%%%%
+\begin{equation}
+\mathbf{Q}^{ij}=\left[\begin{array}{cc}\mathbf{Q}_i & \mathbf{Q}_{ij}\\ \mathbf{Q}_{ij}^{\mathsf{T}} & \mathbf{Q}_j\end{array}\right], \forall i,j:(v_i,v_j)\in E
+\label{equ:edge_precision}
+\end{equation}
+%%%%%%%%%%%%%%
+%
+We aim to find the structure of $\mathbf{Q}$, so that
+%%%%%%%%%%%%%%
+\begin{equation}
+\sum_{\forall i,j:(v_i,v_j)\in E} \left[\begin{array}{c}\mathbf{x}_i\\\mathbf{x}_j\end{array}\right]^{\mathsf{T}} \mathbf{Q}^{ij} \left[\begin{array}{c}\mathbf{x}_i\\\mathbf{x}_j\end{array}\right]=\mathbf{x}^{\mathsf{T}}\mathbf{Q}\mathbf{x}
+\label{equ:aim1}
+\end{equation}
+%%%%%%%%%%%%%%
+where $\mathbf{x} = \left[ \mathbf{x}_1^{\mathsf{T}}, \mathbf{x}_2^{\mathsf{T}}, \ldots, \mathbf{x}_n^{\mathsf{T}} \right]^{\mathsf{T}}$.
+%
+By separating the $kn\times kn$ matrix $\mathbf{Q}$ in blocks of size
+$k\times k$ as
+%%%%%%%%%%%%%%
+\begin{equation}
+\mathbf{Q}=\left[\begin{array}{cccc}\mathbf{K}_{11} & \mathbf{K}_{12} & \cdots & \mathbf{K}_{1n}\\ \mathbf{K}_{21} & \mathbf{K}_{22} & \cdots & \mathbf{K}_{2n}\\ \vdots & \vdots & \ddots & \vdots\\ \mathbf{K}_{n1} & \mathbf{K}_{n2} & \cdots & \mathbf{K}_{nn} \end{array}\right]
+\label{equ:Q_blocks}
+\end{equation}
+the second part of Eq.~\ref{equ:aim1} can be written as
+\begin{equation}
+	\begin{aligned}
+		\mathbf{x}^{\mathsf{T}}\mathbf{Q}\mathbf{x} &=
+		\left[
+		\begin{array}{c}
+			\mathbf{x}_1\\ \mathbf{x}_2\\ \vdots\\ \mathbf{x}_n
+		\end{array}
+		\right]^{\mathsf{T}}
+		\left[
+		\begin{array}{cccc}
+			\mathbf{K}_{11} & \mathbf{K}_{12} & \cdots & \mathbf{K}_{1n}\\ \mathbf{K}_{21} & \mathbf{K}_{22} & \cdots & \mathbf{K}_{2n}\\ \vdots & \vdots & \ddots & \vdots\\ \mathbf{K}_{n1} & \mathbf{K}_{n2} & \cdots & \mathbf{K}_{nn}
+		\end{array}
+		\right]
+		\left[
+		\begin{array}{c}
+			\mathbf{x}_1\\
+			\mathbf{x}_2\\
+			\vdots\\
+			\mathbf{x}_n
+		\end{array}
+		\right] =\\
+		& = \sum_{i=1}^n \mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ii} \mathbf{x}_i + \sum_{i=1}^{n-1} \sum_{j=i+1}^n \left(\mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ij} \mathbf{x}_j + \mathbf{x}_j^{\mathsf{T}} \mathbf{K}_{ji} \mathbf{x}_i \right)
+	\end{aligned}
+	\label{equ:1st_part}
+\end{equation}
+%%%%%%%%%%%%%%
+%
+Given the properties of Sec.~\ref{sec:properties}, the first part of Eq.~\ref{equ:aim1} can be written as
+%%%%%%%%%%%%%%
+\begin{equation}
+	\begin{aligned}
+		\sum_{\forall i,j:(v_i,v_j)\in E} \left[
+		\begin{array}{c}
+			\mathbf{x}_i\\
+			\mathbf{x}_j
+		\end{array}
+		\right]^{\mathsf{T}}
+		\mathbf{Q}^{ij}
+		\left[
+		\begin{array}{c}
+			\mathbf{x}_i\\
+			\mathbf{x}_j
+		\end{array}
+		\right] &= \sum_{\forall i,j:(v_i,v_j)\in E} \mathbf{x}_i^{\mathsf{T}}\mathbf{Q}_i\mathbf{x}_i + \mathbf{x}_j^{\mathsf{T}}\mathbf{Q}_j\mathbf{x}_j + 2\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}_{ij}\mathbf{x}_j = \\
+		&= \sum_{i=1}^nc_i\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}_i\mathbf{x}_i + \sum_{i=1}^{n-1}\sum_{j=i+1}^n 2\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}_{ij}\mathbf{x}_j
+	\end{aligned}
+\label{equ:2nd_part}
+\end{equation}
+%%%%%%%%%%%%%%
+%
+By equalizing Eqs.~\ref{equ:1st_part} and \ref{equ:2nd_part} we get
+%%%%%%%%%%%%%%
+\begin{equation}
+\begin{aligned}
+	& \sum_{i=1}^n \mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ii} \mathbf{x}_i + \sum_{i=1}^{n-1} \sum_{j=i+1}^n \left(\mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ij} \mathbf{x}_j + \mathbf{x}_j^{\mathsf{T}} \mathbf{K}_{ji} \mathbf{x}_i\right) =
+	\sum_{i=1}^nc_i\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}_i\mathbf{x}_i + \sum_{i=1}^{n-1}\sum_{j=i+1}^n 2\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}_{ij}\mathbf{x}_j \Rightarrow \\
+	\Rightarrow & \left\lbrace\begin{array}{l}
+	\mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ii} \mathbf{x}_i = c_i\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}_i\mathbf{x}_i\\
+	\mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ij} \mathbf{x}_j + \mathbf{x}_j^{\mathsf{T}} \mathbf{K}_{ji} \mathbf{x}_i = 2\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}_{ij}\mathbf{x}_j
+	\end{array}\right.
+	\Rightarrow \left\lbrace\begin{array}{l}
+	\mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ii} \mathbf{x}_i = \mathbf{x}_i^{\mathsf{T}}(c_i\mathbf{Q}_i)\mathbf{x}_i\\
+	\mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ij} \mathbf{x}_j + \left(\mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ji}^{\mathsf{T}} \mathbf{x}_j\right)^{\mathsf{T}} = \mathbf{x}_i^{\mathsf{T}}(2\mathbf{Q}_{ij})\mathbf{x}_j
+	\end{array}\right. \Rightarrow\\
+	\Rightarrow & \left\lbrace\begin{array}{l}
+	\mathbf{K}_{ii} = c_i\mathbf{Q}_i\\
+	\mathbf{K}_{ij} = \mathbf{K}_{ji}^{\mathsf{T}} = \mathbf{Q}_{ij}
+	\end{array}\right.
+\end{aligned}
+\end{equation}
+%%%%%%%%%%%%%%
+%
+Consequently, by defining $\mathcal{G}_i=\{(i-1)k+1,(i-1)k+2,\ldots,ik\}$ to be
+a set of sampling indices and given Eq.~\ref{equ:edge_precision}, in order for
+Eq.~\ref{equ:aim1} to be true, the structure of $\mathbf{Q}$ is
+%%%%%%%%%%%%%%
+\begin{equation}
+\mathbf{Q} = \left\lbrace
+\begin{array}{ll}
+\displaystyle\sum_{\forall j:(v_i,v_j)\in E}\mathbf{Q}_{ij}(\mathcal{G}_1,\mathcal{G}_1) + \sum_{\forall j:(v_j,v_i)\in E}\mathbf{Q}_{ji}(\mathcal{G}_2,\mathcal{G}_2),~\forall v_i\in V, & \text{at}~(\mathcal{G}_i,\mathcal{G}_i)\vspace{0.1cm}\\
+\displaystyle\mathbf{Q}_{ij}(\mathcal{G}_1,\mathcal{G}_2),~\forall i,j:(v_i,v_j)\in E, & \text{at}~(\mathcal{G}_i,\mathcal{G}_j)~\text{and}~(\mathcal{G}_j,\mathcal{G}_i)\vspace{0.1cm}\\
+\displaystyle0, & \text{elsewhere}
+\end{array}\right.
+\end{equation}
+%%%%%%%%%%%%%%
+
+%%%%% PROOF 2
+\subsection{Proof 2}
+Similar to the previous case, herein we provide a proof for the precision
+matrix formulation of Eq.~\ref{equ:precision_structure_2}. Again, assume that
+we have a set of vectors of length $k$ that correspond to each vertex, \ie,
+$\mathbf{x}_i=[x_1^i,x_2^i,\ldots,x_k^i],~\forall i:v_i\in V$. We aim to find
+the structure of $\mathbf{Q}$, so that
+%%%%%%%%%%%%%%
+\begin{equation}
+\sum_{\forall i,j:(v_i,v_j)\in E} \left[\mathbf{x}_i-\mathbf{x}_j\right]^{\mathsf{T}} \mathbf{Q}^{ij} \left[\mathbf{x}_i-\mathbf{x}_j\right]=\mathbf{x}^{\mathsf{T}}\mathbf{Q}\mathbf{x}
+\label{equ:aim2}
+\end{equation}
+%%%%%%%%%%%%%%
+where $\mathbf{Q}^{ij}$ is the $k\times k$ precision matrix corresponding to
+$\mathbf{x}_i-\mathbf{x}_j$ and $\mathbf{x}=[\mathbf{x}_1^{\mathsf{T}}, \mathbf{x}_2^{\mathsf{T}},\ldots,\mathbf{x}_n^{\mathsf{T}}]^{\mathsf{T}}$.
+
+By separating the $kn\times kn$ matrix $\mathbf{Q}$ in blocks of size
+$k\times k$ as shown in Eq.~\ref{equ:Q_blocks}, the second part of
+Eq.~\ref{equ:aim2} has the same form as shown in Eq.~\ref{equ:1st_part}. Given
+the properties of Sec.~\ref{sec:properties}, the first part of
+Eq.~\ref{equ:aim2} can be written as
+%%%%%%%%%%%%%%
+\begin{equation}
+\begin{aligned}
+& \sum_{\forall i,j:(v_i,v_j)\in E} \left[\mathbf{x}_i-\mathbf{x}_j\right]^{\mathsf{T}} \mathbf{Q}^{ij} \left[\mathbf{x}_i-\mathbf{x}_j\right] =
+\sum_{\forall i,j:(v_i,v_j)\in E} \left[\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}^{ij}-\mathbf{x}_j^{\mathsf{T}}\mathbf{Q}^{ij}\right] \left[\mathbf{x}_i-\mathbf{x}_j\right] = \\
+& = \sum_{\forall i,j:(v_i,v_j)\in E} \mathbf{x}_i^{\mathsf{T}}\mathbf{Q}^{ij}\mathbf{x}_i + \mathbf{x}_j^{\mathsf{T}}\mathbf{Q}^{ij}\mathbf{x}_j - \mathbf{x}_i^{\mathsf{T}}\mathbf{Q}^{ij}\mathbf{x}_j - (\mathbf{x}_i^{\mathsf{T}}(\mathbf{Q}^{ij})^{\mathsf{T}}\mathbf{x}_j)^{\mathsf{T}}=\\
+& = \sum_{\forall i,j:(v_i,v_j)\in E} \mathbf{x}_i^{\mathsf{T}}\mathbf{Q}^{ij}\mathbf{x}_i + \mathbf{x}_j^{\mathsf{T}}\mathbf{Q}^{ij}\mathbf{x}_j - 2\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}^{ij}\mathbf{x}_j =
+\sum_{i=1}^nc_i\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}^{ij}\mathbf{x}_i - \sum_{i=1}^{n-1}\sum_{j=i+1}^n 2\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}^{ij}\mathbf{x}_j
+\end{aligned}
+\label{equ:2nd_part_aim2}
+\end{equation}
+%%%%%%%%%%%%%%
+%
+By equalizing Eqs.~\ref{equ:1st_part} and \ref{equ:2nd_part_aim2} we get
+%%%%%%%%%%%%%%
+\begin{equation}
+\begin{aligned}
+& \sum_{i=1}^n \mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ii} \mathbf{x}_i + \sum_{i=1}^{n-1} \sum_{j=i+1}^n \left(\mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ij} \mathbf{x}_j + \mathbf{x}_j^{\mathsf{T}} \mathbf{K}_{ji} \mathbf{x}_i\right) =
+\sum_{i=1}^nc_i\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}^{ij}\mathbf{x}_i - \sum_{i=1}^{n-1}\sum_{j=i+1}^n 2\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}^{ij}\mathbf{x}_j \Rightarrow \\
+\Rightarrow & \left\lbrace\begin{array}{l}
+\mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ii} \mathbf{x}_i = c_i\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}^{ij}\mathbf{x}_i\\
+\mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ij} \mathbf{x}_j + \mathbf{x}_j^{\mathsf{T}} \mathbf{K}_{ji} \mathbf{x}_i = -2\mathbf{x}_i^{\mathsf{T}}\mathbf{Q}^{ij}\mathbf{x}_j
+\end{array}\right.
+\Rightarrow \left\lbrace\begin{array}{l}
+\mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ii} \mathbf{x}_i = \mathbf{x}_i^{\mathsf{T}}(c_i\mathbf{Q}^{ij})\mathbf{x}_i\\
+\mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ij} \mathbf{x}_j + \left(\mathbf{x}_i^{\mathsf{T}} \mathbf{K}_{ji}^{\mathsf{T}} \mathbf{x}_j\right)^{\mathsf{T}} = \mathbf{x}_i^{\mathsf{T}}(-2\mathbf{Q}^{ij})\mathbf{x}_j
+\end{array}\right.\\
+\Rightarrow & \left\lbrace\begin{array}{l}
+\mathbf{K}_{ii} = c_i\mathbf{Q}^{ij}\\
+\mathbf{K}_{ij} = \mathbf{K}_{ji}^{\mathsf{T}} = -\mathbf{Q}_{ij}
+\end{array}\right.
+\end{aligned}
+\end{equation}
+%%%%%%%%%%%%%%
+%
+Consequently, by defining $\mathcal{G}_i=\{(i-1)k+1,(i-1)k+2,\ldots,ik\}$ to be
+a set of sampling indices, in order for Eq.~\ref{equ:aim2} to be true, the
+structure of $\mathbf{Q}$ is
+%%%%%%%%%%%%%%
+\begin{equation}
+\mathbf{Q} = \left\lbrace
+\begin{array}{ll}
+\displaystyle\sum_{\forall j:(v_i,v_j)\in E}\mathbf{Q}^{ij} + \sum_{\forall j:(v_j,v_i)\in E}\mathbf{Q}^{ji},~\forall v_i\in V, & \text{at}~(\mathcal{G}_i,\mathcal{G}_i)\vspace{0.1cm}\\
+\displaystyle-\mathbf{Q}^{ij},~\forall i,j:(v_i,v_j)\in E, & \text{at}~(\mathcal{G}_i,\mathcal{G}_j)~\text{and}~(\mathcal{G}_j,\mathcal{G}_i)\vspace{0.1cm}\\
+\displaystyle0, & \text{elsewhere}
+\end{array}\right.
+\end{equation}
+%%%%%%%%%%%%%%
+
+
+
+
+
+\section{Forward-Additive Optimization of Active Pictorial Structures}
+\label{sec:aps_forward}
+Herein, we show the forward-additive Gauss-Newton optimization for Active
+Pictorial Structures (APS) of Chapter~\ref{ch:aps} and prove that it is much
+slower than the inverse one. The general cost function to be optimized is
+%%%%%%%%%%%%%%
+\begin{equation}
+\argmin_{\mathbf{p}} \left\|\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))-\bar{\mathbf{a}}\right\|^2_{\mathbf{Q}^a} + \left\|\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})-\bar{\mathbf{s}}\right\|^2_{\mathbf{Q}^d}
+\end{equation}
+%%%%%%%%%%%%%%
+%
+By using an additive iterative update of the parameters as
+%%%%%%%%%%%%%%
+\begin{equation}
+	\mathbf{p}\leftarrow\mathbf{p}+\Delta\mathbf{p}
+\end{equation}
+%%%%%%%%%%%%%%
+and having an initial estimate of $\mathbf{p}$, the cost function of
+Eq.~\ref{equ:cost_function} is expressed as minimizing
+%%%%%%%%%%%%%%
+\begin{equation}
+	\argmin_{\Delta\mathbf{p}} \left\|\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}+\Delta\mathbf{p}))-\bar{\mathbf{a}}\right\|^2_{\mathbf{Q}^a} + \left\|\mathcal{S}(\mathbf{0},\mathbf{p}+\Delta\mathbf{p})\right\|^2_{\mathbf{Q}^s}
+\end{equation}
+%%%%%%%%%%%%%%
+with respect to $\Delta\mathbf{p}$. In order to find the solution we need to
+linearize around $\mathbf{p}$, thus using first order Taylor series expansion
+at
+$\mathbf{p}+\Delta\mathbf{p}=\mathbf{p}\Rightarrow\Delta\mathbf{p}=\mathbf{0}$
+as
+%%%%%%%%%%%%%%
+\begin{equation}
+	\left\lbrace\begin{array}{l}
+	\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}+\Delta\mathbf{p}))\approx\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})) + \left.\mathbf{J}_{\mathcal{A}}\right|_{\mathbf{p}=\mathbf{p}}\Delta\mathbf{p}\\
+	\mathcal{S}(\mathbf{0},\mathbf{p}+\Delta\mathbf{p})\approx\mathcal{S}(\mathbf{0},\mathbf{p}) + \left.\mathbf{J}_{\mathcal{S}}\right|_{\mathbf{p}=\mathbf{p}}\Delta\mathbf{p}
+	\end{array}\right.
+\end{equation}
+%%%%%%%%%%%%%%
+where
+$\left.\mathbf{J}_{\mathcal{S}}\right|_{\mathbf{p}=\mathbf{p}} = \mathbf{J}_{\mathcal{S}}$
+is the $2n\times n_s$ shape Jacobian
+%%%%%%%%%%%%%%
+\begin{equation}
+	\mathbf{J}_{\mathcal{S}} = \frac{\partial\mathcal{S}}{\partial\mathbf{p}}=\mathbf{U}
+\end{equation}
+%%%%%%%%%%%%%%
+and
+$\left.\mathbf{J}_{\mathcal{A}}\right|_{\mathbf{p}=\mathbf{p}} = \mathbf{J}_{\mathcal{A}}$
+is the $mn\times n_s$ appearance Jacobian
+%%%%%%%%%%%%%%
+\begin{equation}
+	\mathbf{J}_{\mathcal{A}} = \nabla_{\mathcal{A}}\frac{\partial\mathcal{S}}{\partial\mathbf{p}} = \nabla_{\mathcal{A}}\mathbf{U} =
+	\left[\begin{array}{c}\nabla\mathcal{F}(\mathcal{S}_1(\bar{\mathbf{s}},\mathbf{p}))\mathbf{U}_{1,2}\\\nabla\mathcal{F}(\mathcal{S}_2(\bar{\mathbf{s}},\mathbf{p}))\mathbf{U}_{3,4}\\\vdots\\\nabla\mathcal{F}(\mathcal{S}_n(\bar{\mathbf{s}},\mathbf{p}))\mathbf{U}_{2i-1,2i}\end{array}\right]
+\end{equation}
+%%%%%%%%%%%%%%
+where $\mathbf{U}_{2i-1,2i}$ denotes the $2i-1$ and $2i$ row vectors of the basis $\mathbf{U}$.
+%%%% THE ABOVE MAY NEED REVISION
+Note that we make an abuse of notation with
+$\nabla\mathcal{F}(\mathcal{S}_1(\bar{\mathbf{s}},\mathbf{p}))$ because
+$\mathcal{F}(\mathcal{S}_i(\bar{\mathbf{s}},\mathbf{p}))$ is a vector. However,
+it represents the gradient of a patch around landmark $i$ and it has size
+$m\times2$.
+By substituting we get
+%%%%%%%%%%%%%%
+\begin{equation}
+\begin{aligned}
+&\argmin_{\Delta\mathbf{p}} \left\|\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))+\mathbf{J}_{\mathcal{A}}\Delta\mathbf{p}-\bar{\mathbf{a}}\right\|^2_{\mathbf{Q}^a} + \left\|\mathcal{S}(\mathbf{0},\mathbf{p})+\mathbf{J}_{\mathcal{S}}\Delta\mathbf{p}\right\|^2_{\mathbf{Q}^s}=\\
+=&\argmin_{\Delta\mathbf{p}} \left(\left[\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))+\mathbf{J}_{\mathcal{A}}\Delta\mathbf{p}-\bar{\mathbf{a}}\right]^{\mathsf{T}} \mathbf{Q}^a \left[\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))+\mathbf{J}_{\mathcal{A}}\Delta\mathbf{p}-\bar{\mathbf{a}}\right] + \left[\mathcal{S}(\mathbf{0},\mathbf{p})+\mathbf{J}_{\mathcal{S}}\Delta\mathbf{p}\right]^{\mathsf{T}} \mathbf{Q}^s \left[\mathcal{S}(\mathbf{0},\mathbf{p})+\mathbf{J}_{\mathcal{S}}\Delta\mathbf{p}\right]\right)
+\end{aligned}
+\end{equation}
+%%%%%%%%%%%%%%
+%
+Taking the partial derivative with respect to $\Delta\mathbf{p}$ and solving
+for equality with $\mathbf{0}$ we get
+%%%%%%%%%%%%%%
+\begin{equation}
+\begin{aligned}
+&2 {\mathbf{J}_{\mathcal{A}}}^{\mathsf{T}} \mathbf{Q}^a \left(\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))+\mathbf{J}_{\mathcal{A}}\Delta\mathbf{p}-\bar{\mathbf{a}}\right) + 2 {\mathbf{J}_{\mathcal{S}}}^{\mathsf{T}} \mathbf{Q}^s \left(\mathcal{S}(\mathbf{0},\mathbf{p})+\mathbf{J}_{\mathcal{S}}\Delta\mathbf{p}\right) = \mathbf{0}\Rightarrow\\
+\Rightarrow & 2 {\mathbf{J}_{\mathcal{A}}}^{\mathsf{T}} \mathbf{Q}^a \left(\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))-\bar{\mathbf{a}}\right) + 2 {\mathbf{J}_{\mathcal{A}}}^{\mathsf{T}} \mathbf{Q}^a \mathbf{J}_{\mathcal{A}}\Delta\mathbf{p} + 2 {\mathbf{J}_{\mathcal{S}}}^{\mathsf{T}} \mathbf{Q}^s \mathcal{S}(\mathbf{0},\mathbf{p}) + 2 {\mathbf{J}_{\mathcal{S}}}^{\mathsf{T}} \mathbf{Q}^s \mathbf{J}_{\mathcal{S}}\Delta\mathbf{p}= \mathbf{0}\Rightarrow\\
+\Rightarrow & \Delta\mathbf{p}=-[{\mathbf{J}_{\mathcal{A}}}^{\mathsf{T}} \mathbf{Q}^a \mathbf{J}_{\mathcal{A}} + {\mathbf{J}_{\mathcal{S}}}^{\mathsf{T}} \mathbf{Q}^s \mathbf{J}_{\mathcal{S}}]^{-1} [{\mathbf{J}_{\mathcal{A}}}^{\mathsf{T}} \mathbf{Q}^a \left(\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))-\bar{\mathbf{a}}\right) + {\mathbf{J}_{\mathcal{S}}}^{\mathsf{T}} \mathbf{Q}^s \mathcal{S}(\mathbf{0},\mathbf{p})]
+\end{aligned}
+\end{equation}
+%%%%%%%%%%%%%%
+%
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.3}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+$\mathbf{H}$ & $\mathbf{H}^{-1}$ & $\mathbf{J}_{\mathcal{A}}$ & ${\mathbf{J}_{\mathcal{A}}}^{\mathsf{T}} \boldsymbol{\Sigma}^a$ & $\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})$ & $\mathbf{H}_{\mathcal{S}}\mathbf{p}$\\
+\hline
+$\mathcal{O}(m^2n^2n_s + mnn_s^2)$ & $\mathcal{O}({n_s}^3)$ & $\mathcal{O}(mnn_s)$ & $\mathcal{O}(m^2n^2n_s)$ & $\mathcal{O}(2nn_s)$ & $\mathcal{O}({n_s}^2)$\\
+\hline
+\end{tabular}
+\caption{The computational costs of all terms during the computation of the parameters increment. $n$ is the number of landmark points, $m$ is the length of the features' vector extracted from a patch and $n_s$ is the number of shape parameters.}
+\label{tab:aps:costs}
+\end{table}
+%
+%
+Thus by denoting as
+%%%%%%%%%%%%%%
+\begin{equation}
+\left.\begin{array}{l}\mathbf{H}_{\mathcal{A}}={\mathbf{J}_{\mathcal{A}}}^{\mathsf{T}} \mathbf{Q}^a \mathbf{J}_{\mathcal{A}}\\ \mathbf{H}_{\mathcal{S}}={\mathbf{J}_{\mathcal{S}}}^{\mathsf{T}} \mathbf{Q}^s \mathbf{J}_{\mathcal{S}}=\mathbf{U}^{\mathsf{T}}\mathbf{Q}^s\mathbf{U}\end{array}\right\rbrace\Rightarrow \mathbf{H}=\mathbf{H}_{\mathcal{A}}+\mathbf{H}_{\mathcal{S}}
+\end{equation}
+%%%%%%%%%%%%%%
+the combined $n_s\times n_s$ Hessian matrix and getting into account that
+${\mathbf{J}_{\mathcal{S}}}^{\mathsf{T}} \mathbf{Q}^s \mathcal{S}(\mathbf{0},\mathbf{p}) = \mathbf{U}^{\mathsf{T}}\mathbf{Q}^s\mathbf{U}\mathbf{p} = \mathbf{H}_{\mathcal{S}}\mathbf{p}$
+then the parameters increment is given by
+%%%%%%%%%%%%%%
+\begin{equation}
+\Delta\mathbf{p}=-\mathbf{H}^{-1} [{\mathbf{J}_{\mathcal{A}}}^{\mathsf{T}} \mathbf{Q}^a \left(\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))-\bar{\mathbf{a}}\right) + \mathbf{H}_{\mathcal{S}}\mathbf{p}]
+\label{equ:forwards_update}
+\end{equation}
+%%%%%%%%%%%%%%
+
+In Eq.~\ref{equ:forwards_update}, $\mathbf{H}_{\mathcal{S}}$ can be precomputed
+but $\mathbf{J}_{\mathcal{A}}$ and $\mathbf{H}^{-1}$ need to be computed at
+each iteration. Consequently, based on the costs of Tab.~\ref{tab:aps:costs},
+the total computational cost is $\mathcal{O}(m^2n^2n_s + mnn_s + {n_s}^3)$,
+which is much slower than the cost of the weighted inverse compositional
+algorithm with fixed Jacobian and Hessian ($\mathcal{O}(mn)$).

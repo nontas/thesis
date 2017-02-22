@@ -1,0 +1,250 @@
+% !TEX root =  ../../thesis.tex
+\section{Deformable Models}\label{sec:deformable_models_review}
+Deformable Models aim to solve the problem of generic object alignment in terms
+of localization of landmark (fiducial) points that correspond to semantically
+meaningful parts of the object. As explained in Sec.~\ref{sec:objectives},
+although deformable models can be built for a variety of object classes, the
+majority of ongoing research has focused on the task of facial alignment. This
+is largely due to the plethora of existing databases with annotated facial
+images (\eg, Labeled Face Parts in the Wild
+(LFPW)~\cite{belhumeur2011localizing,sagonas2013semi}, Annotated Faces in the
+Wild (AFW)~\cite{zhu2012face,sagonas2013semi},
+HELEN~\cite{le2012interactive,sagonas2013semi},
+IBUG~\cite{sagonas2013300,sagonas2013semi},
+300W~\cite{sagonas2013300,sagonas2013semi,sagonas2016faces},
+Annotated Facial Landmarks in the Wild (AFLW)~\cite{kostinger2011annotated},
+MultiPIE~\cite{gross2010multi,sagonas2013semi}), most of which have in-the-wild
+data. Recent large-scale challenges on facial
+alignment~\cite{sagonas2013300,sagonas2013semi,sagonas2016faces} are
+characteristic examples of the rapid progress being made in the field.
+
+Currently, the most commonly-used and well-studied face alignment methods can
+be separated in two major families: \emph{(i)}~\emph{generative} models that are
+iteratively optimized using Gauss-Newton or Gradient Descent algorithms, and
+\emph{(ii)}~\emph{discriminative} models that employ regression in a cascaded
+manner. Deformable Models can also be split in two categories based on whether
+they use \emph{(i)}~\emph{holistic} or \emph{(ii)}~\emph{part-based} appearance
+representation. In the next sections, we review the related work of each
+category separately.
+
+
+%%% GENERATIVE MODELS
+\subsection{Generative Deformable Models}
+The most dominant algorithm of this category is, by far, the Active Appearance
+Model (AAM), which is descendant of Active Contour Model~\cite{kass1988snakes}
+and Active Shape Model~\cite{cootes1995active}. An AAM consists of parametric
+linear models of the shape and appearance of an object. The shape model,
+usually referred to as Point Distribution Model (PDM), is built by applying
+Principal Component Analysis
+(PCA)~\cite{wold1987principal,jolliffe2002principal} on a set of aligned
+shapes. Similarly, the appearance model is built by applying PCA on a set of
+shape-free appearance instances, acquired by warping the training images into a
+reference shape. The use of a parametric statistical model gives rise to their
+labeling as generative models. The AAM objective function involves the
+minimization of the appearance reconstruction error with respect to the shape
+parameters. AAMs were initially proposed
+in~\cite{cootes1995active,cootes1998active,cootes2001active}, where the
+optimization was performed by a single regression step between the current
+image reconstruction residual and an increment to the shape parameters.
+However, the authors in~\cite{matthews2004active,baker2004lucas} showed how to
+linearize the AAM objective function and optimize it using the Gauss-Newton
+algorithm, which was inspired by their Lucas-Kanade (LK)
+algorithm~\cite{baker2004lucas,baker2003lucas} for parametric image alignment
+with respect to the parameters of an affine transform.
+
+Following this, Gauss-Newton optimization has been the modern de facto method
+for optimizing AAMs. The most common choice for both LK and AAMs matching is
+the Inverse Compositional (IC) image alignment
+algorithm~\cite{baker2004lucas,matthews2004active}. IC is a non-linear,
+Gauss-Newton optimization technique that aims to minimize the $\ell_2$ norm
+between the warped image texture and a target texture. The target texture is
+the static template image in the case of affine image alignment with LK and a
+model texture instance in the case of non-rigid face alignment with AAMs. Since
+IC is a Gauss-Newton optimization technique, the registration result is
+sensitive to initialization and to appearance variation (illumination, pose,
+identity, expression, occlusion, etc.) exposed in the input and the target
+images~\cite{baker2003lucas}. Especially, in the case of AAMs with
+intensity-based appearance representation and optimized with the Project-Out IC
+algorithm~\cite{matthews2004active}, the model is incapable of adequately
+generalizing in order to be robust to outliers. This is the main reason why
+AAMs have been criticized of being able to perform well only in person specific
+applications and not generic ones. Many approaches have been proposed to deal
+with these issues and improve
+efficiency~\cite{baker2004lucas,papandreou2008adaptive,amberg2009compositional,hager1998efficient,baker2001equivalence,liu2008sift,navarathna2011fourier,tzimiropoulos2013optimization,alabort2014bayesian,tzimiropoulos2014gauss,tzimiropoulos2014active,alabort2015unifying,alabort2016unified},
+robustness~\cite{megret2010bidirectional,tzimiropoulos2011robust,lucey2013fourier,dowson2008mutual,gross2005generic,black1998eigentracking,alabort2014bayesian,alabort2015unifying,duong2015beyond,alabort2016unified}
+and
+generalization~\cite{gross2005generic,tzimiropoulos2012subspace,tzimiropoulos2012generic}.
+Many of the proposed methods introduce algorithmic improvements. The authors
+in~\cite{papandreou2008adaptive} propose an adaptation on the fitting matrix
+and the employment of prior information to constrain the IC fitting process.
+In~\cite{baker2003lucas,black1998eigentracking} the $\ell_2$ norm is replaced
+by a robust error function and the optimization aims to solve a re-weighted
+least squares problem with an iterative update of the weights. Moreover, the
+method in~\cite{tzimiropoulos2011robust} aligns two images by maximizing their
+gradient correlation coefficient.
+
+Most of the existing AAM works utilize an intensity-based appearance, which is
+not suitable to create a generic appearance model and achieve accurate image
+alignment. However, the work presented in this thesis proves that this
+limitation can be easily overpassed and highly accurate results can be
+achieved. Specifically, in Chapter~\ref{ch:aam} we propose the employment of
+highly-descriptive, \emph{dense} appearance features for both LK and AAMs.
+Especially in the case of HOG~\cite{dalal2005histograms} and
+SIFT~\cite{lowe1999object} AAMs, we demonstrate results on in-the-wild
+databases that significantly outperform state-of-the-art methods in facial
+alignment, which are discriminatively trained on much more data.
+
+Feature-based image representation has gained extended attention for various
+Computer Vision tasks such as image segmentation and object
+alignment/recognition. There is ongoing research on the employment of features
+for both LK~\cite{liu2008sift,tzimiropoulos2011robust,lucey2013fourier} and
+AAMs~\cite{tzimiropoulos2012generic,cootes2001representing,gao2009gabor,lucey2013fourier,ge2013active,scott2003improving,kittipanya2006effect,stegmann2003multi,su2009texture,wolstenholme1999wavelet,darkner2004wedgelet,antonakos2014automatic,duong2015beyond}.
+The authors in~\cite{liu2008sift} use correspondences between dense
+SIFT~\cite{lowe1999object} descriptors for scene alignment and face
+recognition. Various appearance representations are proposed
+in~\cite{scott2003improving,kittipanya2006effect} to improve the performance of
+AAMs. One of the first attempts for feature-based AAMs
+is~\cite{cootes2001representing}. The authors use novel features based on the
+orientations of gradients to represent edge structure within a regression
+framework. Similar features are employed in~\cite{tzimiropoulos2012generic} to
+create a robust similarity optimization criterion. In~\cite{stegmann2003multi},
+the intensities appearance model is replaced by a mixture of grayscale
+intensities, hue channel and edge magnitude.
+
+Recently, more sophisticated multi-dimensional features are adopted for AAM
+fitting. The work in~\cite{lucey2013fourier} proposes to apply the IC
+optimization algorithm in the Fourier domain using the Gabor responses for LK
+and AAMs. This is different than the framework proposed in this thesis, since
+in our approach the optimization is carried out in the spatial domain.
+In~\cite{su2009texture}, a new appearance representation is introduced for AAMs
+by combining Gabor wavelet and Local Binary Pattern (LBP) descriptor. The work
+in~\cite{gao2009gabor} is the closest to the proposed framework in this thesis
+(Chapter~\ref{ch:aam}). The authors employ Gabor magnitude features summed over
+either orientations or scales or both to build an appearance model. However,
+even though the optimization is based on the IC technique and carried out in
+the spatial domain, features are extracted at each iteration from the warped
+image. Finally, similarly to~\cite{gao2009gabor}, the authors
+in~\cite{ge2013active} model the characteristic functions of Gabor magnitude
+and phase by using log-normal and Gaussian density functions respectively and
+utilize the mean of the characteristics over orientations and scales. Very
+recently, the authors of~\cite{duong2015beyond} proposed to replace the linear
+shape and appearance models used in traditional AAM for deep shape and
+appearance models based on restricted Boltzmann machines (RBM).
+
+
+
+%%% Discriminative models
+\subsection{Discriminative Deformable Models}\label{subsec:discriminative_models}
+The methodologies of this category aim to learn a regression function that
+regresses from the face's appearance (\eg, commonly handcrafted
+features~\cite{lowe1999object,dalal2005histograms}) to the target output
+variables (either the landmark coordinates or the parameters of a statistical
+shape model (PDM)). Although the history behind using linear regression in
+order to tackle the problem of face alignment spans back many
+years~\cite{cootes2001active}, the research community had turned towards
+alternative approaches due to the lack of sufficient data for training accurate
+regression functions. Nevertheless, over the last few years regression-based
+techniques have prevailed in the field thanks to the wealth of readily
+available annotated data and powerful handcrafted
+features~\cite{lowe1999object,dalal2005histograms}. It has been recently
+shown~\cite{xiong2013supervised,xiong2015global} that a single regression step
+is not sufficient for accurate generic alignment. On the contrary, a cascade of
+regression functions is more beneficial and is in fact employed by all recent
+discriminative
+methodologies~\cite{dollar2010cascaded,burgos2013robust,yang2013face,yang2013sieving,xiong2014supervised,cao2014face,kazemi2014one,ren2014face,asthana2014incremental,tzimiropoulos2015project,zhu2015face,lee2015face,trigeorgis2016mnemonic}
+which have proved to be highly efficient and to generalize well.
+
+The most important work in the area of discriminative Deformable Models, which
+can be applied to a big variety of problems that involve non-linear least
+squares problems, is that of Supervised Descent Method
+(SDM)~\cite{xiong2013supervised,xiong2015global,xiong2014supervised}. SDM was
+the first work that presented cascaded regression as a general learning
+framework for optimizing non-linear objective functions by learning a set of
+rules from training data. In particular, the regressors at each cascade of SDM
+are linear and learn average descent directions in the space of the objective
+function. Note that in the original SDM formulation~\cite{xiong2013supervised},
+even though the learnt descent directions are chained in a cascade, they are
+only related between them by the variance remaining from the previous cascade.
+Therefore, the initial cascade levels are prone to large descent steps which
+may not generalize well. This was addressed in~\cite{xiong2015global} by
+clustering the descent directions into cohesive groups during training. At test
+time, a cluster is selected that represents the correct descent direction. For
+example, for face alignment this requires an initial estimate of the shape and
+the descent directions are clustered according to the head pose.
+
+Many different discriminative Deformable Models have emerged, since the first
+proposal of SDM. They can be approximately separated into two categories based
+on the type of the employed regression function. The first category includes
+methodologies that that employ a linear
+regression~\cite{xiong2013supervised,xiong2015global,xiong2014supervised,asthana2014incremental,tzimiropoulos2015project,zhu2015face}. These methods usually
+employ hand-crafted features, such as HOG~\cite{dalal2005histograms} and
+SIFT~\cite{lowe1999object}. The second category, which has proved to be more
+efficient than the first one, includes methods that achieve regression via
+boosting of weak learners such as random
+ferns~\cite{cao2014face,burgos2013robust} or random
+forests~\cite{kazemi2014one,ren2014face}. These techniques tend to utilize
+data-driven features that are optimized directly by the
+regressor~\cite{burgos2013robust,dollar2010cascaded,kazemi2014one}.
+Furthermore, the authors in~\cite{asthana2014incremental} have proposed an
+incremental algorithm which allows to parallelize the training of the cascade
+levels. A method to combine multiple landmark hypotheses using Structured
+Support Vector Machines was proposed in~\cite{yan2013learn}.
+In~\cite{lee2015face}, the authors substitute linear regressors by ensembles of
+linear and Gaussian processes regression trees. Finally, the authors
+in~\cite{rivera2012learning} and~\cite{sun2013deep} learn a mapping from the
+initial bounding box acquired by the face detector to the landmarks' locations
+using Kernel Ridge Regression and Deep Convolutional Neural Network (DCNN),
+respectively.
+
+
+
+%%% Holistic vs Part-Based
+\subsection{Holistic vs. Part-Based Deformable Models}
+Until recently, all research efforts had mainly focused on developing
+Deformable Models with holistic appearance
+representation~\cite{cootes1998active,cootes2001active,matthews2004active,antonakos2015feature,alabort2014bayesian,antonakos2014hog,gross2005generic,tzimiropoulos2012generic,tzimiropoulos2014active}.
+This means that the whole texture information inside the object's shape is
+taken into account and usually warped into a canonical space using a non-linear
+warping function (\eg,
+Piecewise Affine Warp~\cite{baker2004lucas,baker2003lucas},
+Thin-Plate Splines~\cite{bookstein1989principal}).
+
+Nevertheless, mainly due to the high complexity when using a holistic
+appearance representation, most recent existing methods started employing a
+part-based one. This means that a local patch is extracted from the
+neighborhood around each landmark. All the discriminative Deformable Models
+mentioned in Sec.~\ref{subsec:discriminative_models} belong to this category,
+whereas the first part-based AAM was proposed in~\cite{tzimiropoulos2014gauss}.
+Additionally, among the most important part-based methodologies is the
+generative model of Pictorial Structures
+(PS)~\cite{fischler1973representation,felzenszwalb2005pictorial,andriluka2009pictorial},
+its discriminative descendant Deformable Part Model
+(DPM)~\cite{felzenszwalb2010object,zhu2012face}
+and their extensions like Deformable Structures~\cite{zuffi2012pictorial}. PS
+learns a patch expert for each part and models the shape of the object using
+spring-like connections between parts based on a tree structure. Thus, a
+different distribution is assumed for each pair of parts connected with an
+edge, as opposed to the PCA shape model of an AAM that assumes a single
+multivariate normal distribution for all parts. The optimization aims to find a
+tree-based shape configuration for which the patch experts have a minimum cost
+and is performed using a dynamic programming algorithm based on the distance
+transform~\cite{felzenszwalb2000efficient,felzenszwalb2004distance}.
+
+Among the first part-based Deformable Models is Active Shape Model (ASM),
+initially proposed in~\cite{cootes1995active} and later re-utilized
+in~\cite{saragih2011deformable}. The methodology in~\cite{cootes1995active}
+fits ASM with an iterative search procedure that approximated local texture
+responses with isotropic Gaussian estimators. The authors
+in~\cite{cristinacce2006feature} proposed Constrained Local Model (CLM), one of
+the most important existing Deformable Models. CLM is natural extension of ASM,
+which employs a combined statistical model to generate local response maps. A
+probabilistic interpretation of CLM is derived in~\cite{saragih2011deformable}
+which utilizes non-parametric response maps. This is further extended with
+shape priors in~\cite{saragih2011principal} and~\cite{belhumeur2013localizing}.
+Moreover, the authors of~\cite{le2012interactive} use several independent PCA
+priors to model the shape. The authors in~\cite{asthana2013robust} fit the CLM
+using a robust cascaded regression approach. The authors
+in~\cite{martins2014non,martins2014likelihood} use the efficient Regularized
+Particle Filters (RPF) during fitting. Finally, the work
+in~\cite{baltruvsaitis2014continuous} proposed to learn the local patch experts
+using Continuous Conditional Neural Fields.

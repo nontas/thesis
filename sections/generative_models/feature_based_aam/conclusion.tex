@@ -1,0 +1,22 @@
+% !TEX root =  ../../../thesis.tex
+\section{Conclusions}\label{sec:aam:conclusions}
+In this chapter, we presented a novel formulation of LK and holistic AAMs
+alignment algorithms which employs dense feature descriptors for the appearance
+representation. We showed, both theoretically and experimentally, that by
+extracting the features from the input image once and then warping the features
+image has better performance and lower computational complexity than computing
+features from the warped image at each iteration. This allows us to take
+advantage of the descriptive qualities of various features in order to achieve
+robust and accurate performance for the problems of face alignment and
+fitting. Our LK experiments prove that feature-based face alignment is
+invariant to person ID and extreme lighting variations. Our face fitting
+experiments on challenging in-the-wild databases show that the feature-based
+AAMs have the ability to generalize well to unseen faces and demonstrate
+invariance to expression, pose and lighting variations. The presented
+experiments also provide a comparison between various features and prove that
+HOG and SIFT are the most powerful. Finally, we report face fitting results
+using AAMs with HOG and SIFT features that outperform discriminative
+state-of-the-art methods trained on thousands of images. We believe that the
+experimental results are among the major contributions of this work, as they
+emphasize that the combination of highly-descriptive features with efficient
+optimization techniques leads to deformable models with remarkable performance.

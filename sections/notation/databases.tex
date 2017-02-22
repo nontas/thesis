@@ -1,0 +1,163 @@
+% !TEX root =  ../../thesis.tex
+\section{Facial Databases and Evaluation}\label{sec:notation:databases}
+As explained in Chapter~\ref{ch:intro}, this thesis focuses on the
+deformable object of human face. Specifically, we utilize all the commonly-used
+in-the-wild databases that are annotated by
+Sagonas~\emph{et al.}~\cite{sagonas2013semi,sagonas2013300,sagonas2016faces}
+using the standard 68-point annotation mark-up proposed in the CMU MultiPIE
+database~\cite{gross2010multi}. The employed in-the-wild databases, which
+contain images downloaded from the web that are captured under totally
+unconstrained conditions and exhibit large variations in pose, identity,
+illumination, expressions, occlusion and resolution, include:
+%%%%%%%%%%%%%
+\begin{itemize}
+  \item Labeled Face Parts in the Wild (LFPW)~\cite{belhumeur2011localizing} (811 training images, 224 testing images)
+  \item Annotated Faces in the Wild (AFW)~\cite{zhu2012face} (337 images)
+  \item HELEN~\cite{le2012interactive} (2000 training images, 330 testing images)
+  \item IBUG~\cite{sagonas2013300,sagonas2013semi} (135 images)
+  \item 300W~\cite{sagonas2013300,sagonas2013semi,sagonas2016faces} (600 images)
+\end{itemize}
+%%%%%%%%%%%%%
+Note that we do not consider the original annotations of LFPW (29 points) or
+HELEN (194 points), because recent
+works~\cite{zhu2015face,zhang2016learning,ren2014face} have shown that
+these databases have become saturated for the original annotations.
+Figure~\ref{fig:databases} shows some examples from the employed in-the-wild
+databases.
+
+The fitting process is commonly initialized by computing the face's bounding box
+using a face detector and then estimating the global similarity transform that
+fits the mean shape within the bounding box boundaries. Note that this initial
+similarity transform only involves a translation and scaling component and not
+any in-plane rotation. The accuracy of a landmark localization result is
+measured by the point-to-point RMS error between the fitted shape and the
+ground-truth annotations, as proposed in~\cite{zhu2012face}. Denoting
+$\mathbf{s}^f=[x_1^f, y_1^f, x_2^f, y_2^f, \ldots, x_n^f, y_n^f]^{\mathsf{T}}$
+and
+$\mathbf{s}^g=[x_1^g, y_1^g, x_2^g, y_2^g, \ldots, x_n^g, y_n^g]^{\mathsf{T}}$
+as the fitted shape and the ground-truth shape, respectively, then the error
+between them is expressed as
+\begin{equation}
+  \text{RMSE} = \frac{\sum_{i=1}^n \sqrt{(x_i^f - x_i^g)^2 + (y_i^f - y_i^g)^2}}{cn}
+  \label{equ:error}
+\end{equation}
+where $c$ is a normalization constant. The interocular distance and the face
+size, defined as
+\begin{equation}
+  c=\frac{(\max{\{x_i^g\}_1^n}-\min{\{x_i^g\}_1^n}+\max{\{y_i^g\}_1^n}-\min{\{y_i^g\}_1^n})}{2}
+  \label{equ:error_normalization}
+\end{equation}
+are popular normalization choices.
+These errors are presented in the form of Cumulative Error Distribution (CED)
+and/or statistical measures.
+
+%%%%%%%%%%%%%%
+\begin{figure}[!h]
+\centering
+%%%%%%%%%
+\subfloat[LFPW trainset]{\includegraphics[height=3.5cm]{figures/notation/databases/lfpw1}}
+\hfill
+\subfloat[LFPW testset]{\includegraphics[height=3.5cm]{figures/notation/databases/lfpw2}}
+\hfill
+\subfloat[HELEN trainset]{\includegraphics[height=3.5cm]{figures/notation/databases/helen1}}
+\hfill
+\subfloat[HELEN testset]{\includegraphics[height=3.5cm]{figures/notation/databases/helen2}}\\
+\subfloat[AFW]{\includegraphics[height=3.5cm]{figures/notation/databases/afw}}
+\hfill
+\subfloat[IBUG]{\includegraphics[height=3.5cm]{figures/notation/databases/ibug}}
+\hfill
+\subfloat[300W Indoor]{\includegraphics[height=3.5cm]{figures/notation/databases/3001}}
+\hfill
+\subfloat[300W Outdoor]{\includegraphics[height=3.5cm]{figures/notation/databases/3002}}
+%%%%%%%%%
+\caption{Exemplar images from the employed in-the-wild databases.}
+\label{fig:databases}
+\end{figure}
+%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%
+\begin{figure}[!t]
+\centering
+%%%%%%%%%
+\subfloat[$p_1=-3\sqrt{\lambda_1}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/0_0}}
+\subfloat[$p_1=-\frac{3}{2}\sqrt{\lambda_1}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/0_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/0_2}}
+\subfloat[$p_1=\frac{3}{2}\sqrt{\lambda_1}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/0_3}}
+\subfloat[$p_1=3\sqrt{\lambda_1}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/0_4}}\\
+%%%%%%%%%
+\subfloat[$p_2=-3\sqrt{\lambda_2}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/1_0}}
+\subfloat[$p_2=-\frac{3}{2}\sqrt{\lambda_2}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/1_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/1_2}}
+\subfloat[$p_2=\frac{3}{2}\sqrt{\lambda_2}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/1_3}}
+\subfloat[$p_2=3\sqrt{\lambda_2}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/1_4}}\\
+%%%%%%%%%
+\subfloat[$p_3=-3\sqrt{\lambda_3}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/2_0}}
+\subfloat[$p_3=-\frac{3}{2}\sqrt{\lambda_3}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/2_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/2_2}}
+\subfloat[$p_3=\frac{3}{2}\sqrt{\lambda_3}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/2_3}}
+\subfloat[$p_3=3\sqrt{\lambda_3}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/2_4}}\\
+%%%%%%%%%
+\subfloat[$p_4=-3\sqrt{\lambda_4}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/3_0}}
+\subfloat[$p_4=-\frac{3}{2}\sqrt{\lambda_4}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/3_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/3_2}}
+\subfloat[$p_4=\frac{3}{2}\sqrt{\lambda_4}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/3_3}}
+\subfloat[$p_4=3\sqrt{\lambda_4}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/3_4}}\\
+%%%%%%%%%
+\subfloat[$p_5=-3\sqrt{\lambda_5}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/4_0}}
+\subfloat[$p_5=-\frac{3}{2}\sqrt{\lambda_5}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/4_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/4_2}}
+\subfloat[$p_5=\frac{3}{2}\sqrt{\lambda_5}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/4_3}}
+\subfloat[$p_5=3\sqrt{\lambda_5}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_holistic/4_4}}
+%%%%%%%%%
+\caption{Exemplar instances of a holistic statistical appearance model trained
+on the images of LFPW trainset. Each row shows the variations covered by the
+first five principal components, where $\lambda_i$ is the eigenvalue that
+corresponds to the $i$-th eigenvector.}
+\label{fig:holistic_appearance_model_instances}
+\end{figure}
+%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%
+\begin{figure}[!t]
+\centering
+%%%%%%%%%
+\subfloat[$p_1=-3\sqrt{\lambda_1}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/0_0}}
+\subfloat[$p_1=-\frac{3}{2}\sqrt{\lambda_1}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/0_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/0_2}}
+\subfloat[$p_1=\frac{3}{2}\sqrt{\lambda_1}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/0_3}}
+\subfloat[$p_1=3\sqrt{\lambda_1}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/0_4}}\\
+%%%%%%%%%
+\subfloat[$p_2=-3\sqrt{\lambda_2}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/1_0}}
+\subfloat[$p_2=-\frac{3}{2}\sqrt{\lambda_2}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/1_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/1_2}}
+\subfloat[$p_2=\frac{3}{2}\sqrt{\lambda_2}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/1_3}}
+\subfloat[$p_2=3\sqrt{\lambda_2}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/1_4}}\\
+%%%%%%%%%
+\subfloat[$p_3=-3\sqrt{\lambda_3}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/2_0}}
+\subfloat[$p_3=-\frac{3}{2}\sqrt{\lambda_3}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/2_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/2_2}}
+\subfloat[$p_3=\frac{3}{2}\sqrt{\lambda_3}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/2_3}}
+\subfloat[$p_3=3\sqrt{\lambda_3}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/2_4}}\\
+%%%%%%%%%
+\subfloat[$p_4=-3\sqrt{\lambda_4}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/3_0}}
+\subfloat[$p_4=-\frac{3}{2}\sqrt{\lambda_4}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/3_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/3_2}}
+\subfloat[$p_4=\frac{3}{2}\sqrt{\lambda_4}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/3_3}}
+\subfloat[$p_4=3\sqrt{\lambda_4}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/3_4}}\\
+%%%%%%%%%
+\subfloat[$p_5=-3\sqrt{\lambda_5}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/4_0}}
+\subfloat[$p_5=-\frac{3}{2}\sqrt{\lambda_5}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/4_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/4_2}}
+\subfloat[$p_5=\frac{3}{2}\sqrt{\lambda_5}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/4_3}}
+\subfloat[$p_5=3\sqrt{\lambda_5}$]{\includegraphics[width=0.2\linewidth]{figures/notation/appearance_model_gray_partbased/4_4}}
+%%%%%%%%%
+\caption{Exemplar instances of a part-based statistical appearance model
+trained on the images of LFPW trainset. Each row shows the variations covered
+by the first five principal components, where $\lambda_i$ is the eigenvalue
+that corresponds to the $i$-th eigenvector.}
+\label{fig:part_based_appearance_model_instances}
+\end{figure}
+%%%%%%%%%%%%%%

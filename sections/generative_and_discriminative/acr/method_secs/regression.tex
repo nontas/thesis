@@ -1,0 +1,67 @@
+% !TEX root =  ../../../../thesis.tex
+\subsection{Cascaded Regression Discriminative Model}\label{subsec:regression}
+Herein, we present a fully parametric cascaded regression model. We employ an
+appearance model and learn a regression function that regresses from the
+object's projected-out appearance to the parameters of a linear shape model.
+Let us assume that we have a set of $N$ training images
+$\{\mathbf{I}^1,\ldots,\mathbf{I}^N\}$ and their corresponding annotated shapes
+$\{\mathbf{s}^1,\ldots,\mathbf{s}^N\}$. By projecting each ground-truth shape
+to the shape basis $\mathbf{U}_s$, we get the set of ground-truth shape
+parameters $\{\mathbf{p}^*_1,\ldots,\mathbf{p}^*_N\}$. Moreover, we aim to
+learn a cascade of $K$ levels, \ie, $k=1,\ldots,K$.
+During the training process of each level, we generate a set of $P$ perturbed
+shape parameters $\mathbf{p}_{i,j}^k,~j=1,\ldots,P,~i=1,\ldots,N$, which are
+sampled from a distribution that models the statistics of the detector employed
+for initialization. By defining
+%%%%%%%%%%%%%%
+\begin{equation}
+  \Delta\mathbf{p}_{i,j}^k=\mathbf{p}^*_i-\mathbf{p}_{i,j}^k,~j=1,\ldots,P,~i=1,\ldots,N
+\end{equation}
+%%%%%%%%%%%%%%
+to be a set of shape parameters increments, the least-squares problem that we
+aim to solve during training at each cascade level $k$ is
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:regression_cost}
+    \argmin_{\mathbf{W}^k}\sum_{i=1}^N\sum_{j=1}^P\left\|\Delta\mathbf{p}_{i,j}^k - \mathbf{W}^k\mathbf{P}\left(\mathbf{f}_i(\mathbf{s}(\mathbf{p}_{i,j}^k)) - \bar{\mathbf{a}}\right)\right\|^2_2
+\end{equation}
+%%%%%%%%%%%%%%
+where $\mathbf{P}$ is the projection operator defined in
+Eq.~\ref{equ:projection_matrix} and $\mathbf{f}_i(\cdot)$ denotes the
+vector of concatenated feature-based patches extracted from the training
+image $\mathbf{I}^i$, as defined in Eq.~\ref{equ:feature_function_acr}. Note
+that the bias term of the above objective function is substituted by the mean
+appearance vector $\bar{\mathbf{a}}$. By denoting
+%%%%%%%%%%%%%%
+\begin{equation}
+    \hat{\mathbf{f}}_{i,j,k} = \mathbf{P}\left(\mathbf{f}_i(\mathbf{s}(\mathbf{p}_{i,j}^k)) - \bar{\mathbf{a}}\right)
+\end{equation}
+%%%%%%%%%%%%%%
+to be the projected-out residual, then the closed-form solution to the above
+least-squares problem is given by
+%%%%%%%%%%%%%%
+\begin{equation}
+    \mathbf{W}^k=\left(\sum_{i=1}^N\sum_{j=1}^P\Delta\mathbf{p}_{i,j}^k{\hat{\mathbf{f}}_{i,j,k}}^{\mathsf{T}}\right)\left(\sum_{i=1}^N\sum_{j=1}^P{\hat{\mathbf{f}}_{i,j,k}}{\hat{\mathbf{f}}_{i,j,k}}^{\mathsf{T}}\right)^{-1}
+\end{equation}
+%%%%%%%%%%%%%%
+for each level of the cascade $k=1,\ldots,K$.
+
+During testing, given the current estimate of the shape parameters
+$\mathbf{p}_k)$ that was computed at cascade level $k$, we create the
+feature-based image vector $\mathbf{f}(\mathbf{s}(\mathbf{p}_k))$,
+subtract the mean appearance vector $\bar{\mathbf{a}}$, project-out the
+appearance variation and estimate the shape parameters increment as
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:regression_dp}
+    \Delta\mathbf{p}_k=\mathbf{W}^k\mathbf{P}\left(\mathbf{f}(\mathbf{s}(\mathbf{p}_k)) - \bar{\mathbf{a}}\right)
+\end{equation}
+%%%%%%%%%%%%%%
+Then, the shape parameters vector is updated as
+%%%%%%%%%%%%%%
+\begin{equation}
+    \mathbf{p}_k = \mathbf{p}_{k-1} + \Delta\mathbf{p}_{k-1}
+\end{equation}
+%%%%%%%%%%%%%%
+where we set $\mathbf{p}_0=\mathbf{0}$ at the first iteration. The computational
+complexity of Eq.~\ref{equ:regression_dp} per cascade level is
+$\mathcal{O}(n_smn)$, thus the complexity per test image is
+$\mathcal{O}(Kn_smn)$.

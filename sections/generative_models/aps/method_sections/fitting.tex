@@ -1,0 +1,261 @@
+% !TEX root =  ../../../../thesis.tex
+\subsection{Gauss-Newton Optimization}
+The trained shape, appearance and deformation models can be combined to
+localize the landmark points of an object in a new testing image $\mathbf{I}$.
+Specifically, given the appearance and deformation costs of
+Eqs.~\ref{equ:appearance_cost} and \ref{equ:deformation_cost}, the cost
+function to be optimized is
+%%%%%%%%%%%%%%
+\begin{equation}
+  \argmin_{\mathbf{p}} \left\lVert \mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})) - \bar{\mathbf{a}}\right\rVert^2_{\mathbf{Q}^a} + \left\lVert \mathcal{S}(\bar{\mathbf{s}},\mathbf{p}) - \bar{\mathbf{s}}\right\rVert^2_{\mathbf{Q}^d}
+  \label{equ:cost_function}
+\end{equation}
+%%%%%%%%%%%%%%
+%
+We minimize the cost function with respect to the shape parameters $\mathbf{p}$
+using a variant of the Gauss-Newton
+algorithm~\cite{hager1998efficient,matthews2004active,baker2004lucas}. The
+optimization procedure can be applied in two different ways, depending on the
+coordinate system in which the shape parameters are updated:
+\emph{(i)}~\emph{forward} and \emph{(ii)}~\emph{inverse}. Additionally, the
+parameters update can be carried out in two manners: \emph{(i)}~\emph{additive}
+and \emph{(ii)}~\emph{compositional}, which we show that in the case of our
+model they are identical. However, the forward additive algorithm is very slow
+compared to the inverse one. This is the reason why herein we only present and
+experiment with the inverse case. Please refer to
+Appendix~\ref{sec:aps_forward} for a derivation of the forward case.
+
+%%%%% INVERSE
+\subsubsection{Inverse-Compositional}
+The compositional update has the form
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathcal{S}(\bar{\mathbf{s}},\mathbf{p}) \leftarrow \mathcal{S}(\mathbf{s},\mathbf{p}) \circ \mathcal{S}(\bar{\mathbf{s}},\Delta\mathbf{p})^{-1}
+\end{equation}
+%%%%%%%%%%%%%%
+As also shown in~\cite{tzimiropoulos2014gauss}, by expanding this expression we
+get
+%%%%%%%%%%%%%%
+\begin{equation}
+\mathcal{S}(\mathbf{s},\mathbf{p}) \circ \mathcal{S}(\bar{\mathbf{s}},\Delta\mathbf{p})^{-1}  = \mathcal{S}(\mathcal{S}(\bar{\mathbf{s}},-\Delta\mathbf{p}),\mathbf{p}) = \mathcal{S}(\bar{\mathbf{s}},\mathbf{p}-\Delta\mathbf{p})
+\end{equation}
+%%%%%%%%%%%%%%
+Consequently, due to the translational nature of our motion model, the
+compositional parameters update is reduced to the parameters subtraction, as
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{p}\leftarrow\mathbf{p}-\Delta\mathbf{p}
+\end{equation}
+%%%%%%%%%%%%%%
+which is equivalent to the additive update.
+%
+By using this compositional update of the parameters and having an initial
+estimate of $\mathbf{p}$, the cost function of Eq.~\ref{equ:cost_function} is
+expressed as minimizing
+%%%%%%%%%%%%%%
+\begin{equation}
+  \begin{aligned}
+  \argmin_{\Delta\mathbf{p}} & \left\|\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))-\bar{\mathbf{a}}(\mathcal{S}(\bar{\mathbf{s}},\Delta\mathbf{p}))\right\|^2_{\mathbf{Q}^a} + \\ & + \left\|\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})-\mathcal{S}(\bar{\mathbf{s}},\Delta\mathbf{p})\right\|^2_{\mathbf{Q}^d}
+  \end{aligned}
+\end{equation}
+%%%%%%%%%%%%%%
+with respect to $\Delta\mathbf{p}$.
+%
+With some abuse of notation due to $\bar{\mathbf{a}}$ being a vector,
+$\bar{\mathbf{a}}(\mathcal{S}(\bar{\mathbf{s}},\Delta\mathbf{p}))$ can be
+described as
+%%%%%%%%%%%%%%
+\begin{equation}
+  \bar{\mathbf{a}}(\mathcal{S}(\bar{\mathbf{s}},\Delta\mathbf{p})) = \left[ \begin{array}{c}
+  \boldsymbol{\mu}_1^a(\mathcal{S}_1(\bar{\mathbf{s}},\Delta\mathbf{p}))\\ \vdots\\ \boldsymbol{\mu}_n^a(\mathcal{S}_n(\bar{\mathbf{s}},\Delta\mathbf{p}))
+  \end{array}
+  \right]
+\end{equation}
+%%%%%%%%%%%%%%
+where
+$\boldsymbol{\mu}_i^a=E(\mathcal{F}(\boldsymbol{\ell}_i)), \forall i=1,\ldots,n$.
+This formulation gives the freedom to each landmark point of the mean shape to
+slightly move within its reference frame. The reference frame of each landmark
+is simply the $h\times w$ patch neighborhood around it, in which
+$\boldsymbol{\mu}_i^a$ is defined.
+%
+In order to find the solution we need to linearize around $\Delta\mathbf{p}=\mathbf{0}$ as
+%%%%%%%%%%%%%%
+\begin{equation}
+  \left\lbrace\begin{array}{l}
+  \bar{\mathbf{a}}(\mathcal{S}(\bar{\mathbf{s}},\Delta\mathbf{p}))\approx\bar{\mathbf{a}} + \left.\mathbf{J}_{\bar{\mathbf{a}}}\right|_{\mathbf{p}=\mathbf{0}}\Delta\mathbf{p}\\
+  \mathcal{S}(\bar{\mathbf{s}},\Delta\mathbf{p})\approx\bar{\mathbf{s}} + \left.\mathbf{J}_{\mathcal{S}}\right|_{\mathbf{p}=\mathbf{0}}\Delta\mathbf{p}
+  \end{array}\right.
+\end{equation}
+%%%%%%%%%%%%%%
+where
+%%%%%%%%%%%%%%
+\begin{equation}
+  \left.\mathbf{J}_{\mathcal{S}}\right|_{\mathbf{p}=\mathbf{0}} = \mathbf{J}_{\mathcal{S}} = \frac{\partial\mathcal{S}}{\partial\mathbf{p}}=\mathbf{U}
+\end{equation}
+%%%%%%%%%%%%%%
+is the $2n\times n_s$ shape Jacobian and
+$\left.\mathbf{J}_{\bar{\mathbf{a}}}\right|_{\mathbf{p}=\mathbf{0}} = \mathbf{J}_{\bar{\mathbf{a}}}$ is the $mn\times n_s$ appearance Jacobian
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{J}_{\bar{\mathbf{a}}} = \nabla\bar{\mathbf{a}}\frac{\partial\mathcal{S}}{\partial\mathbf{p}} = \nabla\bar{\mathbf{a}}\mathbf{U} =
+  \left[\begin{array}{c}\nabla\boldsymbol{\mu}_1^a\mathbf{U}_{1,2}\\ \vdots\\ \nabla\boldsymbol{\mu}_n^a\mathbf{U}_{2n-1,2n}\end{array}\right]
+\end{equation}
+%%%%%%%%%%%%%%
+where $\mathbf{U}_{2i-1,2i}$ denotes the $2i-1$ and $2i$ row vectors of the
+basis $\mathbf{U}$.
+%
+Note that we make an abuse of notation by writing $\nabla\boldsymbol{\mu}_i^a$
+because $\boldsymbol{\mu}_i^a$ is a vector. However, it represents the gradient
+of the mean patch-based appearance that corresponds to landmark $i$ and it has
+size $m\times2$.
+%
+By substituting, taking the partial derivative with respect to
+$\Delta\mathbf{p}$, equating it to $\mathbf{0}$ and solving for
+$\Delta\mathbf{p}$ we get
+%%%%%%%%%%%%%%
+\begin{equation}
+\Delta\mathbf{p}=\mathbf{H}^{-1} [{\mathbf{J}_{\bar{\mathbf{a}}}}^{\mathsf{T}} \mathbf{Q}^a \left(\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))-\bar{\mathbf{a}}\right) + \mathbf{H}_{\mathcal{S}}\mathbf{p}]
+\label{equ:inverse_update}
+\end{equation}
+%%%%%%%%%%%%%%
+where
+%%%%%%%%%%%%%%
+\begin{equation}
+\left.\begin{array}{l}\mathbf{H}_{\bar{\mathbf{a}}}={\mathbf{J}_{\bar{\mathbf{a}}}}^{\mathsf{T}} \mathbf{Q}^a \mathbf{J}_{\bar{\mathbf{a}}}\\ \mathbf{H}_{\mathcal{S}}={\mathbf{J}_{\mathcal{S}}}^{\mathsf{T}} \mathbf{Q}^d \mathbf{J}_{\mathcal{S}}=\mathbf{U}^{\mathsf{T}}\mathbf{Q}^d\mathbf{U}\end{array}\right\rbrace\Rightarrow \mathbf{H}=\mathbf{H}_{\bar{\mathbf{a}}}+\mathbf{H}_{\mathcal{S}}
+\end{equation}
+%%%%%%%%%%%%%%
+is the combined $n_s\times n_s$ Hessian matrix and we use the property
+${\mathbf{J}_{\mathcal{S}}}^{\mathsf{T}} \mathbf{Q}^d \left(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})-\bar{\mathbf{s}}\right) =  \mathbf{U}^{\mathsf{T}}\mathbf{Q}^d\mathbf{U}\mathbf{p}=\mathbf{H}_{\mathcal{S}}\mathbf{p}$.
+%
+Note that $\mathbf{J}_{\bar{\mathbf{a}}}$, $\mathbf{H}_{\bar{\mathbf{a}}}$,
+$\mathbf{H}_{\mathcal{S}}$ and $\mathbf{H}^{-1}$ of
+Eq.~\ref{equ:inverse_update} can be precomputed.
+The computational cost per iteration is only $\mathcal{O}(mnn_s)$. The cost is
+practically reduced to a multiplication between a $n_s\times mn$ matrix and a
+$n_s\times1$ vector that leads to a close to real-time performance, similar to
+the one of the very fast SDM method~\cite{xiong2013supervised}.
+
+%%%%% FORWARD
+%\paragraph{Forward-Additive}
+%By using an additive iterative update of the parameters as $\mathbf{p}\leftarrow\mathbf{p}+\Delta\mathbf{p}$ and following the same procedure as in the inverse case, the parameters increment in the forward case is given by
+%\begin{equation}
+%\Delta\mathbf{p}=-\mathbf{H}^{-1} [{\mathbf{J}_{\mathcal{A}}}^{\mathsf{T}} \mathbf{Q}^a \left(\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))-\bar{\mathbf{a}}\right) + \mathbf{H}_{\mathcal{S}}\mathbf{p}]
+%\label{equ:forwards_update}
+%\end{equation}
+%where
+%$$\left.\begin{array}{l}\mathbf{H}_{\mathcal{A}}={\mathbf{J}_{\mathcal{A}}}^{\mathsf{T}} \mathbf{Q}^a \mathbf{J}_{\mathcal{A}}\\ \mathbf{H}_{\mathcal{S}}={\mathbf{J}_{\mathcal{S}}}^{\mathsf{T}} \mathbf{Q}^d \mathbf{J}_{\mathcal{S}}=\mathbf{U}^{\mathsf{T}}\mathbf{Q}^d\mathbf{U}\end{array}\right\rbrace\Rightarrow \mathbf{H}=\mathbf{H}_{\mathcal{A}}+\mathbf{H}_{\mathcal{S}}$$
+%and $\mathbf{J}_{\mathcal{A}} = \nabla_{\mathcal{A}}\frac{\partial\mathcal{S}}{\partial\mathbf{p}}$ is the $mn\times n_s$ appearance Jacobian. $\mathbf{H}_{\mathcal{S}}$ can be precomputed but $\mathbf{J}_{\mathcal{A}}$ and $\mathbf{H}^{-1}$ need to be computed at each iteration. Consequently, the cost per iteration is $\mathcal{O}(m^2n^2n_s + mnn_s + {n_s}^3)$, which indicates that the forward algorithm is much slower than the inverse one.
+
+%%%%% DERIVATION TO EXISTING METHODS
+\subsubsection{Derivation of Existing Methods}
+\label{sec:derivation}
+The APS model shown in the cost function of Eq.~\ref{equ:cost_function} is an
+abstract formulation of a generative model from which many existing models from
+the literature can be derived.
+
+\textbf{PS}~\cite{felzenszwalb2005pictorial}, \textbf{DPM}~\cite{zhu2012face}
+As explained in Sec.~\ref{sec:aps:motivation}, the proposed model is partially
+motivated by PS~\cite{felzenszwalb2005pictorial,zhu2012face}. In the original
+formulation of PS, the cost function to be optimized has the form
+%%%%%%%%%%%%%%
+\begin{equation}
+  \begin{aligned}
+  &\argmin_{\mathbf{s}}\sum_{i=1}^nm_i(\boldsymbol{\ell}_i) + \sum_{i,j:(v_i,v_j)\in E}d_{ij}(\boldsymbol{\ell}_i,\boldsymbol{\ell}_j) = \\
+  =& \argmin_{\mathbf{s}}\sum_{i=1}^n[\mathcal{A}(\boldsymbol{\ell}_i)-\boldsymbol{\mu}_i^a]^{\mathsf{T}} (\boldsymbol{\Sigma}_i^a)^{-1} [\mathcal{A}(\boldsymbol{\ell}_i)-\boldsymbol{\mu}_i^a] + \sum_{i,j:(v_i,v_j)\in E}
+  [\boldsymbol{\ell}_i - \boldsymbol{\ell}_j - \boldsymbol{\mu}_{ij}^d]^{\mathsf{T}} (\boldsymbol{\Sigma}_{ij}^d)^{-1} [\boldsymbol{\ell}_i - \boldsymbol{\ell}_j - \boldsymbol{\mu}_{ij}^d]
+  \end{aligned}
+  \label{equ:ps}
+\end{equation}
+%%%%%%%%%%%%%%
+where
+$\mathbf{s}=[\boldsymbol{\ell}_1^{\mathsf{T}},\ldots,\boldsymbol{\ell}_n^{\mathsf{T}}]^{\mathsf{T}}$
+is the vector of landmark coordinates
+($\boldsymbol{\ell}_i=[x_i,y_i]^{\mathsf{T}},~\forall i=1,\ldots,n$),
+$\mathcal{A}(\boldsymbol{\ell}_i)$ is a feature vector extracted from the image
+location $\boldsymbol{\ell}_i$ and we have assumed a tree $G=(V,E)$.
+$\{\boldsymbol{\mu}_i^a,\boldsymbol{\Sigma}_i^a\}$ and
+$\{\boldsymbol{\mu}_{ij}^d,\boldsymbol{\Sigma}_{ij}^d\}$ denote the mean and
+covariances of the appearance and deformation, respectively. In
+Eq.~\ref{equ:ps}, $m_i(\boldsymbol{\ell}_i)$ is a function measuring the degree
+of mismatch when part $v_i$ is placed at location $\boldsymbol{\ell}_i$ in the
+image. Moreover, $d_{ij}(\boldsymbol{\ell}_i,\boldsymbol{\ell}_j)$ denotes a
+function measuring the degree of deformation of the model when part $v_i$ is
+placed at location $\boldsymbol{\ell}_i$ and part $v_j$ is placed at location
+$\boldsymbol{\ell}_j$. The authors show an inference algorithm based on
+distance transform~\cite{felzenszwalb2000efficient} that can find a global
+minimum of Eq.~\ref{equ:ps} without any initialization. However, this algorithm
+imposes two important restrictions:
+\begin{enumerate}
+  \item The appearance of each part is independent of the rest of them.
+  \item $G$ must always be acyclic (a tree).
+\end{enumerate}
+Additionally, the computation of $m_i(\boldsymbol{\ell}_i)$ for all parts
+($i=1,\ldots,n$) and all possible image locations (response maps) has a high
+computational cost, which makes the algorithm very slow. Finally,
+in~\cite{zhu2012face}, the authors only use a diagonal covariance for the
+relative locations (deformation) of each edge of the graph, which restricts the
+flexibility of the model.
+
+In the proposed APS, we aim to minimize the cost function of Eq.~\ref{equ:cost_function} which can be expanded as
+%%%%%%%%%%%%%%
+\begin{equation}
+\begin{aligned}
+& \argmin_{\mathbf{p}} \left\|\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))-\bar{\mathbf{a}}\right\|^2_{\mathbf{Q}^a} + \left\|\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})-\bar{\mathbf{s}}\right\|^2_{\mathbf{Q}^d} = \\
+= & \argmin_{\mathbf{p}} [\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))-\bar{\mathbf{a}}]^{\mathsf{T}} \mathbf{Q}^a [\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))-\bar{\mathbf{a}}] + [\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})-\bar{\mathbf{s}}]^{\mathsf{T}} \mathbf{Q}^d [\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})-\bar{\mathbf{s}}]
+\end{aligned}
+\end{equation}
+%%%%%%%%%%%%%%
+There are two main differences between APS and PS:
+\begin{enumerate}
+  \item We employ a statistical shape model and optimize with respect to its parameters.
+  \item We use the efficient Gauss-Newton optimization technique.
+\end{enumerate}
+However, these differences introduce some important advantages. The proposed
+formulation allows to define a graph (not only tree) between the object's
+parts. This means that we can assume dependencies between any pair of landmarks
+for both the appearance and the deformation, as opposed to PS that assumes
+independence for the appearance and a tree structure for the deformation. As
+shown in the experimental results of Sec.~\ref{sec:aps:internal_results}, this
+lack of restriction is very beneficial. Finally, even though the efficient
+Gauss-Newton APS optimization does not find a global optimum, it handles the
+cost function in its matricial form (not in sums as in Eq.~\ref{equ:ps}) and
+with an inverse-compositional manner, which ends up in much faster
+computational time that does not get affected by the graph structure.
+
+% The proposed cost function written in summation form (using
+% Eqs.~\ref{equ:cost_sum_form} and ~\ref{equ:deformation_gmrf}) is equivalent to
+% PS and DPM. The only difference is that these methods employ a dynamic
+% programming technique to find the global optimum, instead of optimizing with
+% respect to the parameters of a motion model to find a local optimum. Moreover,
+% these methods are limited to use only tree structures for the deformation cost
+% ($G^d$) and assume an empty graph for the appearance cost ($G^a$), as opposed
+% to APS that can utilize any graph structure without affecting its computational
+% cost.
+
+\textbf{AAM-POIC}~\cite{matthews2004active}. By removing the deformation prior
+from Eq.~\ref{equ:cost_function} and using a single multidimensional normal
+distribution in the shape and appearance models, the proposed APS are
+equivalent to AAMs. After performing an eigenanalysis on the appearance
+covariance matrix
+($\boldsymbol{\Sigma}^a=\mathbf{W}\mathbf{D}\mathbf{W}^{\mathsf{T}}$), the POIC
+optimization of an AAM can be derived from the presented inverse algorithm by
+using as precision matrix the complement of the texture subspace, \ie,
+$\mathbf{Q}^a=\mathbf{I}-\mathbf{W}\mathbf{W}^{\mathsf{T}}$.
+The part-based AAM of~\cite{tzimiropoulos2014gauss} uses an alternating
+optimization similar to~\cite{tzimiropoulos2012generic}. Its project-out
+equivalent can be derived by using the above precision matrix.
+
+\textbf{BAAM-POIC}~\cite{alabort2014bayesian}. Similar to the AAM-POIC, the
+Bayesian AAM can be formulated by replacing the precision matrix with
+$\mathbf{Q}^a=\mathbf{W}\mathbf{D}^{-1}\mathbf{W}^{\mathsf{T}}+\frac{1}{\sigma^2}(\mathbf{I}-\mathbf{W}\mathbf{W}^{\mathsf{T}})$.
+This precision matrix is derived by applying the Woodbury formula on the
+covariance matrix
+$\mathbf{W}\mathbf{D}\mathbf{W}^{\mathsf{T}}+\sigma^2\mathbf{I}$,
+where $\sigma^2$ is the variance of the noise in the appearance subspace
+$\mathbf{W}$.
+%
+The above highlight the flexibility and strengths of the proposed model. As
+shown in Sec~\ref{sec:aps:comparison}, the proposed GMRF-based appearance model
+makes our inverse technique, to the best of our knowledge, the best performing
+one among all inverse algorithms with fixed Jacobian and Hessian (\eg, POIC).

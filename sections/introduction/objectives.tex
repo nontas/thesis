@@ -1,0 +1,86 @@
+% !TEX root =  ../../thesis.tex
+\section{Objectives}\label{sec:objectives}
+The aim of this Ph.D. thesis is to investigate ways to address the
+aforementioned challenges by combining the main concepts and advantages of generative and discriminative Deformable Models. Specifically, this work has
+the following objectives:
+%%%%%%%%%%%%%%%
+\begin{itemize}
+  \item \textbf{Objective 1: Develop generative Deformable Models that
+  achieve accurate performance without requiring a large amount of training
+  data.} Generative Deformable Models have attracted extended research interest
+  during the last two decades. However, they have often been
+  criticized~\cite{gross2005generic,van2010capturing} for their inability to
+  generalize well to conditions beyond the ones exhibited in the training set
+  and have been characterized as inappropriate for fitting in-the-wild images.
+  As a matter of fact, they have always been regarded as ideal options to be
+  used with data captured under controlled recording scenarios and for building
+  instance-specific models. One of the objectives of this thesis is to develop
+  generative Deformable Models that take advantage of recent advances in
+  component analysis and visual feature extraction in order to achieve accurate
+  and robust performance without the need of large annotated training datasets.
+  An additional aim is to compare the advantages and disadvantages between
+  \emph{holistic} and \emph{part-based} appearance representations. A holistic
+  appearance representation takes into account the texture that lies inside the
+  whole surface of a deformable object. On the other hand, a part-based
+  appearance representation extracts local texture patches that are centered 
+  around the landmark points.
+
+  \item \textbf{Objective 2: Propose methodologies for training Deformable
+  Models with limited or even no human supervision} and explore solutions
+  towards the online incremental update of these models with new training
+  samples (\textbf{lifelong learning}). This refers to the task of
+  constantly updating Deformable Models with images coming from the web $-$ in
+  other words, the task of semi-automatic annotation of large
+  collections of images. During the past twenty years, there has been huge
+  dispute about whether generative or discriminative approaches are more
+  appropriate for learning visual data~\cite{jordan2002discriminative}. Even
+  though, there is no solid theoretical proof that discriminative models are
+  always better than generative ones~\cite{jordan2002discriminative}, and in
+  many cases the latter produce state-of-the-art
+  results~\cite{antonakos2015feature,antonakos2014hog,tzimiropoulos2014gauss},
+  the majority of researchers use discriminative models for learning from
+  annotated data. However, discriminative methods are of limited use under an
+  unsupervised setting. \emph{For the purpose of applications with minimal, or
+  even no supervision, the family of generative techniques is more suitable.}
+  Nevertheless, although the cost of manual annotation is well understood,
+  unsupervised learning of Deformable Models has not received the proper
+  attention and has been mainly restricted to controlled conditions and in small
+  non-representative
+  sets~\cite{baker2004automatic,kokkinos2007unsupervised,winn2005locus}.
+
+  \item \textbf{Objective 3: Achieve state-of-the-art landmark localization
+  performance by combining the advantages of generative and discriminative
+  Deformable Models.} Discriminative (cascaded regression) Deformable Models
+  have been shown to be more accurate and robust than generative models under
+  challenging initializations. On the other had, generative models are very
+  accurate when the initialization of their iterative optimization is
+  reasonably close to the desired optimum solution. One of the objectives of
+  this thesis is to analyze the main characteristics of these two families and
+  create a unified model that benefits from their advantages and
+  achieves state-of-the-art performance by \emph{outperforming both}.
+
+  \item \textbf{Objective 4: Release an open-source implementation of all
+  proposed approaches that contributes towards the need to standarize
+  benchmarking.}
+  One of the goals of this Ph.D. thesis is to accompany all the proposed
+  methodologies of Objectives 1, 2 and 3 with a stable, tested and
+  well-documented open-source implementation of both training and fitting. This
+  can have a huge impact on the research community, since it allows to tweak
+  with the proposed models and easily compare with them.
+\end{itemize}
+%%%%%%%%%%%%%
+
+It should be highlighted that the ideas and methodologies presented in this
+Ph.D. thesis are directly applicable to various deformable objects. However,
+this work focuses entirely on the object of \textbf{human face}. The main
+reasons behind that is that there are many large and carefully annotated
+databases with facial images $-$ much more than for any other kind of
+deformable object. In fact, academic research lacks annotated databases for the
+vast majority of deformable objects. Furthermore, the human face is a very
+representative example of an object that exhibits large variations in
+deformations and appearance due to the plethora of facial expressions, race,
+identity, gender, etc. In addition to that, it is an object of great
+interest for many research fields with multiple applications. As a result,
+almost all research on Deformable Models is applied and tested on the human
+face. Recent large-scale challenges on facial
+alignment~\cite{sagonas2013300,sagonas2013semi,sagonas2016faces} are characteristic examples of the rapid progress being made in the field.

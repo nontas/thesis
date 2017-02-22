@@ -1,0 +1,115 @@
+% !TEX root =  ../../../thesis.tex
+\section{Motivation}\label{sec:aam:motivation}
+As explained in Sec.~\ref{sec:deformable_models_review}, the Lucas-Kanade (LK)
+algorithm~\cite{lucas1981iterative,baker2004lucas} is the most important method
+for the problem of aligning a given image with a template image. The method's
+aim is to find the parameter values of a parametric motion model (commonly an
+affine transform) that minimize the discrepancies between the two images.
+Active Appearance Models (AAMs)~\cite{cootes2001active} are among the most
+popular models for the task of face fitting. They are generative Deformable
+Models of shape and appearance variation. Among the most efficient techniques
+to optimize AAMs is Gauss-Newton, which recovers the parametric description of
+a face instance. Gauss-Newton optimization for AAMs is similar to the LK
+algorithm, with the difference that the registration is obtained between the
+input image and a parametric appearance model instead of a static template.
+
+The most common choice for both LK and AAMs fitting is the Inverse
+Compositional (IC) image alignment
+algorithm~\cite{baker2004lucas,matthews2004active}. IC is a non-linear,
+Gauss-Newton optimization technique that aims to minimize the $\ell_2$ norm
+between the warped image texture and a target texture. The target texture is
+the static template image in the case of LK and a model texture instance in the
+case of AAMs.
+
+Since IC is a Gauss-Newton method, the registration result is sensitive to
+initialization and to large appearance variations in terms of illumination,
+expressions, occlusion, identity, etc. exposed in the input and the target
+images~\cite{baker2003lucas}. Especially, in the case of intensities-based AAMs
+with the Project-Out IC algorithm~\cite{matthews2004active}, the model is
+incapable of adequately generalizing in order to be robust to outliers. This is
+the main reason why AAMs have been criticized of not being adequate for generic
+alignment applications and only being capable of performing well under person
+specific scenarios.
+
+In this chapter, we propose the employment of highly-descriptive, \emph{dense}
+appearance features for both LK and holistic AAMs. We show that even though the
+employment of dense features increases the data dimensionality, there is a
+small raise in the time complexity and a significant improvement in the
+alignment accuracy. We show that within the IC optimization, there is no need
+to compute the dense features at each iteration from the warped image. On the
+contrary, we extract the dense features from the original image once and then
+warp the resulting multi-channel image at each iteration. This strategy gives
+better results, as shown in our motivating experiment of
+Sec.~\ref{subsec:aam:faceAlignment:comparison} and has smaller computational
+complexity, as explained in Sec.~\ref{sec:aam:featureBasedOptimization} and
+Tab.~\ref{tab:times}. Motivated by this observation, we present very accurate
+and robust experimental results for both face alignment and fitting with
+feature-based LK and AAMs, that prove their invariance to illumination and
+expression changes and their generalization ability to unseen faces.
+
+We apply the above concept for both LK and holistic AAMs by using a great
+variety of widely-used features, such as Histograms of Oriented Gradients
+(HOG)~\cite{dalal2005histograms}, Scale-Invariant Feature Transform
+(SIFT)~\cite{lowe1999object}, Image Gradient Orientation kernel
+(IGO)~\cite{tzimiropoulos2012subspace,tzimiropoulos2011robust}, Edge Structure
+(ES)~\cite{cootes2001representing}, Local Binary Patterns
+(LBP)~\cite{ojala1996comparative,ojala2001generalized,ojala2002multiresolution}
+with variations~\cite{wolf2008descriptor}, and Gabor
+filters~\cite{kovesi1997symmetry,kovesi1999image,lee1996image}. We extensively
+evaluate the performance and behavior of the proposed framework on the commonly
+used Yale B Database~\cite{georghiades2001from} for LK and on multiple
+in-the-wild databases (LFPW~\cite{belhumeur2011localizing},
+AFW~\cite{zhu2012face}, HELEN~\cite{le2012interactive},
+iBUG~\cite{sagonas2013300}) for AAMs. Finally, we compare with two
+state-of-the-art discriminative Deformable
+Models~\cite{xiong2013supervised,asthana2013robust} and report more accurate
+results.
+
+To summarize, the contributions of this work are:
+%%%%%%%%%%%%%%%
+\begin{itemize}
+  \item We propose the incorporation of densely-sampled, highly-descriptive
+  features in the IC gradient descent framework. We show that the combination
+  of \emph{(i)}~non-linear least-squares optimization with \emph{(ii)}~robust
+  features (\eg, HOG, SIFT) and \emph{(iii)}~generative models can achieve
+  excellent performance for the task of face alignment.
+
+  \item We elaborate on the reasons why it is preferable to warp the features
+  image at each iteration, rather than extracting features at each iteration
+  from the warped image, as it is done in the relevant bibliography.
+
+  \item Our extended experimental results provide solid comparisons between
+  some of the most successful and widely-used features that exist in the
+  current bibliography for the tasks of interest, by thoroughly investigating
+  the features' accuracy, robustness, and speed of convergence.
+
+  \item Our proposed HOG and SIFT holistic AAMs outperform state-of-the-art
+  face fitting methods on a series of cross-database challenging in-the-wild
+  experiments.
+\end{itemize}
+%%%%%%%%%%%%%%%
+
+\noindent The content of this chapter is based on the following publications:
+%%%%%%%%%%%%%%%
+\begin{itemize}
+  \item \textbf{E. Antonakos}, J. Alabort-i-Medina, G. Tzimiropoulos, and S.
+  Zafeiriou.
+  ``HOG Active Appearance Models'',
+  \emph{Proceedings of IEEE International Conference on Image Processing (ICIP)},
+  Paris, France, pp. 224-228, October 2014.
+
+  \item \textbf{E. Antonakos}, J. Alabort-i-Medina, G. Tzimiropoulos, and S.
+  Zafeiriou.
+  ``Feature-Based Lucas-Kanade and Active Appearance Models'',
+  \emph{IEEE Transactions on Image Processing (T-IP)},
+  24(9): pp. 2617-2632, September 2015.
+\end{itemize}
+%%%%%%%%%%%%%%%
+
+The rest of the chapter is structured as follows: Section~\ref{sec:aam:features}
+briefly describes the used features. Section~\ref{sec:aam:inverseCompositional}
+elaborates on the intensity-based IC algorithm for LK and AAMs.
+Section~\ref{sec:aam:featureBasedOptimization} explains the strategy to combine
+the IC optimization with dense features. Finally,
+Section~\ref{sec:aam:experiments} presents extended experiments for LK and AAMs
+and Section~\ref{sec:aam:conclusions} draws the conclusions.

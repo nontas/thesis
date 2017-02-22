@@ -1,0 +1,418 @@
+% !TEX root =  ../../../thesis.tex
+\section{Inverse-Compositional Alignment Algorithm}
+\label{sec:aam:inverseCompositional}
+The optimization technique that we employ for both LK and AAMs is the efficient
+Gauss-Newton Inverse Compositional (IC) Image
+Alignment~\cite{baker2004lucas,matthews2004active}. In this section, we firstly
+refer to the problem of LK (\ref{subsec:aam:inverseCompositional:LK}) and then
+elaborate on holistic AAMs
+(\ref{subsec:aam:inverseCompositional:inverseCompositionalAAMs}). In both
+cases, the Gauss-Newton image alignment aims to find the optimal parameters
+values of a parametric motion model, as defined in Chapter~\ref{ch:notation},
+Sec.~\ref{sec:notation_holistic}. The motion model utilized in this work is
+Piecewise Affine Warp (PWA)~\cite{cootes2004statistical,baker2004lucas},
+denoted as $\mathcal{W}(\mathbf{p})$, where $\mathbf{p}$ is the $n_s$ number of
+parameters (Eq.~\ref{equ:shape_parameters}). In order to explain the IC
+algorithm, we first present the forward-additive (FA) and forward-compositional
+(FC) ones. Note that all the algorithms in this section are presented based on
+pixel intensities, thus we assume that we have images with a single channel.
+
+% Lucas-Kanade
+\subsection{Lucas-Kanade Optimization}\label{subsec:aam:inverseCompositional:LK}
+Herein, we first define the optimization techniques for the LK face alignment
+problem, in order to describe the IC optimization for AAMs in the following
+Sec.~\ref{subsec:aam:inverseCompositional:inverseCompositionalAAMs}. The aim of
+image alignment is to find the location of a constant template
+$\bar{\mathbf{a}} \in \mathbb{R}^m$ in an input vectorized image
+$\mathbf{t}$, where $m$ is the number of pixels inside the reference shape as
+also defined in Sec.~\ref{sec:notation_holistic}. This is mathematically
+expressed as minimizing the $\ell_2$-norm cost function
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \argmin_{\mathbf{p}} \left\lVert \bar{\mathbf{a}} - \mathbf{t}(\mathcal{W}(\mathbf{p})) \right\rVert^2
+  \label{equ:minimizationCostForLK}
+\end{equation}
+%%%%%%%%%%%%%%%%
+with respect to the $n_s$ motion model parameters $\mathbf{p}$. The proposed
+Gauss-Newton optimization techniques~\cite{baker2003lucas,baker2004lucas}
+are categorized as:
+\begin{itemize}
+  \item Forward
+  \item Inverse
+\end{itemize}
+depending on the direction of the motion parameters estimation and
+\begin{itemize}
+  \item Additive
+  \item Compositional
+\end{itemize}
+depending on the way the motion parameters are updated.
+
+\subsubsection{Forward-Additive}
+Lucas and Kanade proposed the FA gradient descent in~\cite{lucas1981iterative}.
+By using an additive iterative update of the parameters, \ie
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{p}\leftarrow\mathbf{p}+\Delta\mathbf{p}
+\end{equation}
+%%%%%%%%%%%%%%%%
+and having an initial estimate of $\mathbf{p}$, the cost function of
+Eq.~\ref{equ:minimizationCostForLK} is expressed as minimizing
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \argmin_{\Delta\mathbf{p}} \left\lVert \bar{\mathbf{a}} - \mathbf{t}(\mathcal{W}(\mathbf{p}+\Delta\mathbf{p})) \right\rVert^2
+\end{equation}
+%%%%%%%%%%%%%%%%
+with respect to $\Delta\mathbf{p}$. The solution is given by first linearizing
+around $\mathbf{p}$, thus using first order Taylor series expansion at
+$\mathbf{p}+\Delta\mathbf{p}=\mathbf{p}\Rightarrow\Delta\mathbf{p}=\mathbf{0}$.
+This gives
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{t}(\mathcal{W}(\mathbf{p}+\Delta\mathbf{p})) \approx \mathbf{t}(\mathcal{W}(\mathbf{p})) + \mathbf{J}_{\mathbf{t}}|_{\mathbf{p}=\mathbf{p}}\Delta\mathbf{p}
+\end{equation}
+%%%%%%%%%%%%%%%%
+where $\mathbf{J}_{\mathbf{t}}|_{\mathbf{p}=\mathbf{p}}=\nabla\mathbf{t}\frac{\partial\mathcal{W}}{\partial\mathbf{p}}$
+is the \emph{image Jacobian}, consisting of the \emph{image gradient} evaluated
+at $\mathcal{W}(\mathbf{p})$ and the \emph{warp jacobian} evaluated at
+$\mathbf{p}$. The final solution is given by
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \Delta\mathbf{p} = \mathbf{H}^{-1} \mathbf{J}^\mathsf{T}_{\mathbf{t}}|_{\mathbf{p}=\mathbf{p}} \left[ \bar{\mathbf{a}} - \mathbf{t}(\mathcal{W}(\mathbf{p})) \right]
+\end{equation}
+%%%%%%%%%%%%%%%%
+where
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{H} = \mathbf{J}^\mathsf{T}_{\mathbf{t}}|_{\mathbf{p}=\mathbf{p}} \mathbf{J}_{\mathbf{t}}|_{\mathbf{p}=\mathbf{p}}
+\end{equation}
+%%%%%%%%%%%%%%%%
+is the Gauss-Newton approximation of the \emph{Hessian matrix}. This method is
+forward because the warp projects into the image coordinate frame and additive
+because the iterative update of the motion parameters is computed by estimating
+a $\Delta\mathbf{p}$ incremental offset from the current parameters. The algorithm
+is very slow with computational complexity $\mathcal{O}({n_s}^3+{n_s}^2m)$,
+because the computationally costly Hessian matrix and its inverse depend on the
+warp parameters $\mathbf{p}$ and need to be evaluated at each iteration.
+
+\subsubsection{Forward-Compositional}
+Compared to the FA version, in the FC gradient descent we have the same warp
+direction for computing the parameters, but a compositional update of the form
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \mathcal{W}(\mathbf{p}) \leftarrow \mathcal{W}(\mathbf{p}) \circ \mathcal{W}(\Delta\mathbf{p})
+\end{equation}
+%%%%%%%%%%%%%%%%
+The minimization cost function in this case takes the form
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \argmin_{\Delta\mathbf{p}} \left\lVert \bar{\mathbf{a}} - \mathbf{t}\left( \mathcal{W}(\mathbf{p}) \circ \mathcal{W}(\Delta\mathbf{p}) \right) \right\rVert^2
+\end{equation}
+%%%%%%%%%%%%%%%%
+and the linearization is
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \left\lVert \bar{\mathbf{a}} - \mathbf{t}(\mathcal{W}(\mathbf{p})) - \mathbf{J}_{\mathbf{t}}|_{\Delta\mathbf{p}=\mathbf{0}}\Delta\mathbf{p} \right\rVert^2
+\end{equation}
+%%%%%%%%%%%%%%%%
+where the composition with the identity warp is
+$\mathcal{W}(\mathbf{p})\circ\mathcal{W}(\mathbf{0})=\mathcal{W}(\mathbf{p})$.
+The image Jacobian in this case is expressed as
+$\mathbf{J}_{\mathbf{t}}|_{\mathbf{p}=\mathbf{0}}=\nabla\mathbf{t}(\mathcal{W}(\mathbf{p}))\left.\frac{\partial\mathcal{W}}{\partial\mathbf{p}}\right|_{\mathbf{p}=\mathbf{0}}$.
+Thus, with this formulation, the warp Jacobian is constant and can be
+precomputed, because it is evaluated at $\mathbf{p}=\mathbf{0}$. This
+precomputation slightly improves the algorithm's computational complexity
+compared to the FA case, even though the compositional update is more expensive
+than the additive one.
+
+\subsubsection{Inverse-Compositional}
+\label{subsec:aam:inverseCompositional:LK-IC}
+In the IC optimization, the direction of the warp is reversed compared to the two previous techniques and the incremental warp is computed with respect to the
+template $\bar{\mathbf{a}}$~\cite{baker2004lucas,baker2001equivalence}. Compared to Eq.~\ref{equ:minimizationCostForLK} the goal in this case is to minimize
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \argmin_{\Delta\mathbf{p}} \left\lVert \mathbf{t}(\mathcal{W}(\mathbf{p})) - \bar{\mathbf{a}}(\mathcal{W}(\Delta\mathbf{p})) \right\rVert^2
+  \label{equ:LKICcost}
+\end{equation}
+%%%%%%%%%%%%%%%%
+with respect to $\Delta\mathbf{p}$. The incremental warp
+$\mathcal{W}(\Delta\mathbf{p})$ is computed with respect to the template
+$\bar{\mathbf{a}}$, but the current warp $\mathcal{W}(\mathbf{p})$ is still
+applied on the input image. By linearizing around $\Delta\mathbf{p}=\mathbf{0}$
+and using the identity warp, we have
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \left\lVert \mathbf{t}(\mathcal{W}(\mathbf{p})) - \bar{\mathbf{a}} - \mathbf{J}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}}\Delta\mathbf{p} \right\rVert^2
+  \label{equ:LKtaylorExpansion}
+\end{equation}
+%%%%%%%%%%%%%%%%
+where
+$\mathbf{J}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}}=\nabla\bar{\mathbf{a}}\left.\frac{\partial\mathcal{W}}{\partial\mathbf{p}}\right|_{\mathbf{p}=\mathbf{0}}$.
+Consequently, similar to the FC case, the increment is
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \Delta\mathbf{p} = \mathbf{H}^{-1} \mathbf{J}^{\mathsf{T}}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}} \left[ \mathbf{t}(\mathcal{W}(\mathbf{p})) - \bar{\mathbf{a}} \right]
+\end{equation}
+%%%%%%%%%%%%%%%%
+where the Hessian matrix is
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{H} = \mathbf{J}^{\mathsf{T}}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}} \mathbf{J}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}}
+\end{equation}
+%%%%%%%%%%%%%%%%
+The compositional motion parameters update at each iteration is
+%%%%%%%%%%%%%%%%
+\begin{equation}
+  \mathcal{W}(\mathbf{p}) \leftarrow \mathcal{W}(\mathbf{p})\circ\mathcal{W}(\Delta\mathbf{p})^{-1}
+  \label{equ:LKwarpParametersUpdate}
+\end{equation}
+%%%%%%%%%%%%%%%%
+Since the gradient is always taken at the template, the warp Jacobian
+$\left.\frac{\partial\mathcal{W}}{\partial\mathbf{p}}\right|_{\mathbf{p}=\mathbf{0}}$
+and thus the Hessian matrix's inverse remain constant and can be precomputed.
+This makes the IC algorithm both fast and efficient with a total computational
+complexity of $\mathcal{O}(n_s^2+n_sm)$.
+
+% Active Appearance Models
+\subsection{Active Appearance Models Optimization}
+\label{subsec:aam:inverseCompositional:inverseCompositionalAAMs}
+AAMs are statistical Deformable Models of shape and appearance that recover a
+parametric description of a certain object through optimization. Their shape
+and appearance models are linear statistical models built as explained in
+Secs.~\ref{sec:notation:shape} and~\ref{sec:notation:appearance}, respectively.
+These models can be used to generate new shape and appearance instances as
+shown in Eqs.~\ref{equ:shape_generation} and~\ref{equ:appearance_generation},
+respectively. Note that the appearance model utilized in this chapter employs a
+holistic appearance representation.
+
+The basic difference between the IC algorithm employed for LK and AAMs is that
+the template image $\bar{\mathbf{a}}$ is not static, but it includes a linear
+appearance variation controlled by the appearance parameters $\mathbf{c}$
+as shown in Eq.~\ref{equ:appearance_generation}. Consequently, the minimization
+cost function of Eq.~\ref{equ:minimizationCostForLK} now becomes
+\begin{equation}
+  \argmin_{\mathbf{p},\mathbf{c}} \left\lVert \mathbf{t}(\mathcal{W}(\mathbf{p})) - \bar{\mathbf{a}} - \mathbf{U}_a\mathbf{c}\right\rVert^2
+  \label{equ:minimizationCostForAAMs}
+\end{equation}
+We present three algorithms for solving the optimization problem:
+Simultaneous, Alternating and Project-Out.
+
+\subsubsection{Project-Out Inverse-Compositional}
+The Project-Out IC (POIC) algorithm~\cite{matthews2004active} decouples
+shape and appearance by solving Eq.~\ref{equ:minimizationCostForAAMs} in a
+subspace orthogonal to the appearance variation. This is achieved by
+``projecting-out'' the appearance variation, thus working on the orthogonal
+complement of the appearance subspace
+$\hat{\mathbf{U}}_a=\mathbf{I}-\mathbf{U}_a{\mathbf{U}_a}^{\mathsf{T}}$. The
+cost function of Eq.~\ref{equ:minimizationCostForAAMs} takes the form
+%%%%%%%%%%%%%%
+\begin{equation}
+  \argmin_{\Delta\mathbf{p}} \left\lVert \mathbf{t}(\mathcal{W}(\mathbf{p})) - \bar{\mathbf{a}}(\mathcal{W}(\Delta\mathbf{p}))\right\rVert^2_{\mathbf{I}-\mathbf{U}_a\mathbf{U}_a^{\mathsf{T}}}
+  \label{equ:POICcostFunction}
+\end{equation}
+%%%%%%%%%%%%%%
+and the first-order Taylor expansion over
+$\Delta\mathbf{p}=\mathbf{0}$ is
+%%%%%%%%%%%%%%
+\begin{equation}
+  \bar{\mathbf{a}}(\mathcal{W}(\Delta\mathbf{p})) \approx \bar{\mathbf{a}} + \mathbf{J}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}}\Delta\mathbf{p}
+\end{equation}
+%%%%%%%%%%%%%%
+The incremental update of the warp parameters is computed as
+%%%%%%%%%%%%%%
+\begin{equation}
+  \Delta\mathbf{p} = \mathbf{H}^{-1} \mathbf{J}^{\mathsf{T}}_{POIC}[\mathbf{t}(\mathcal{W}(\mathbf{p})) - \bar{\mathbf{a}}]
+\end{equation}
+%%%%%%%%%%%%%%
+where
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{J}_{POIC} = (\mathbf{I} - \mathbf{U}_a\mathbf{U}_a^{\mathsf{T}}) \mathbf{J}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}}
+\end{equation}
+%%%%%%%%%%%%%%
+and
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{H}^{-1}=\mathbf{J}_{POIC}^{\mathsf{T}}\mathbf{J}_{POIC}
+\end{equation}
+%%%%%%%%%%%%%%
+The appearance parameters can be retrieved at the end of the iterative
+operation as
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{c} = \mathbf{U}_a^{\mathsf{T}}[\mathbf{t}(\mathcal{W}(\mathbf{p})) - \bar{\mathbf{a}}]
+\end{equation}
+%%%%%%%%%%%%%%
+in order to reconstruct the appearance vector. The POIC algorithm is very fast
+with $\mathcal{O}(n_sm+n_s^2)$ computational complexity, because the Jacobian,
+the Hessian matrix and its inverse are constant and can be precomputed.
+However, the algorithm is not robust, especially in cases with large appearance
+variation or outliers.
+
+\subsubsection{Simultaneous Inverse-Compositional}
+In the Simultaneous IC (SIC)~\cite{gross2005generic} we aim to optimize
+simultaneously for $\mathbf{p}$ and $\mathbf{c}$ parameters. Similar to
+the Eq.~\ref{equ:LKICcost} of the LK-IC case, the cost function of
+Eq.~\ref{equ:minimizationCostForAAMs} now becomes
+%%%%%%%%%%%%%%
+\begin{equation}
+  \argmin_{\Delta\mathbf{p},\Delta\mathbf{c}} \left\lVert \mathbf{t}(\mathcal{W}(\mathbf{p})) - \bar{\mathbf{a}}\left(\mathcal{W}(\Delta\mathbf{p})\right) - \mathbf{U}_a\left(\mathcal{W}(\Delta\mathbf{p})\right) (\mathbf{c}+\Delta\mathbf{c}) \right\rVert^2
+  \label{equ:SICcostFunction}
+\end{equation}
+%%%%%%%%%%%%%%
+We denote by
+%%%%%%%%%%%%%%
+\begin{equation}
+  \Delta\mathbf{q} = \left[ \Delta\mathbf{p}^{\mathsf{T}}, \Delta\mathbf{c}^{\mathsf{T}} \right]^{\mathsf{T}}
+\end{equation}
+%%%%%%%%%%%%%%
+the vector of concatenated parameters increments with length $n_s+n_a$. As in
+Eq.~\ref{equ:LKtaylorExpansion}, the linearization of the model term
+around $\Delta\mathbf{p}=\mathbf{0}$
+consists of two parts: the mean appearance vector approximation
+%%%%%%%%%%%%%
+\begin{equation}
+  \bar{\mathbf{a}}(\mathcal{W}(\Delta\mathbf{p})) \approx \bar{\mathbf{a}} + \left.\mathbf{J}_{\bar{\mathbf{a}}}\right|_{\mathbf{p}=\mathbf{0}} \Delta\mathbf{p}
+\end{equation}
+%%%%%%%%%%%%%
+and the linearized basis
+%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{U}_a(\mathcal{W}(\Delta\mathbf{p})) \approx \mathbf{U}_a + \left[\mathbf{J}_{\mathbf{u}_{1}}|_{\mathbf{p}=\mathbf{0}}\Delta\mathbf{p}, \ldots, \mathbf{J}_{\mathbf{u}_{n_a}}|_{\mathbf{p}=\mathbf{0}}\Delta\mathbf{p}\right]
+\end{equation}
+%%%%%%%%%%%%%
+where
+$\mathbf{J}_{\mathbf{u}_i}|_{\mathbf{p}=\mathbf{0}} = \nabla\mathbf{u}_i \left.\frac{\partial\mathcal{W}}{\partial\mathbf{p}}\right|_{\mathbf{p}=\mathbf{0}}$
+denotes the Jacobian with respect to the $i^{\text{th}}$ eigentexture at
+$\Delta\mathbf{p}=\mathbf{0}$. Then the final solution at each iteration is
+%%%%%%%%%%%%%%
+\begin{equation}
+  \Delta\mathbf{q} = \mathbf{H}^{-1} \mathbf{J}^{\mathsf{T}}_{SIC}\left[\mathbf{t}(\mathcal{W}(\mathbf{p})) - \bar{\mathbf{a}} - \mathbf{U}_a\mathbf{c}\right]
+  \label{equ:sicUpdate}
+\end{equation}
+%%%%%%%%%%%%%%
+where the Jacobian is given by
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{J}_{SIC} = \left[ \left.\mathbf{J}_{\mathbf{a}_{\mathbf{c}}}\right|_{\mathbf{p}=\mathbf{0}}, \mathbf{U}_a \right]
+\end{equation}
+%%%%%%%%%%%%%%
+with
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{J}_{\mathbf{a}_{\mathbf{c}}}|_{\mathbf{p} = \mathbf{0}} = \mathbf{J}_{\bar{\mathbf{a}}}|_{\mathbf{p} = \mathbf{0}} + \sum_{i=1}^{n_a}c_i\mathbf{J}_{\mathbf{u}_i}|_{\mathbf{p}=\mathbf{0}}
+\end{equation}
+%%%%%%%%%%%%%%
+and the Hessian matrix is
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{H}=\mathbf{J}^{\mathsf{T}}_{SIC}\mathbf{J}_{SIC}
+\end{equation}
+%%%%%%%%%%%%%%
+
+At every iteration, we apply the compositional motion parameters update of
+Eq.~\ref{equ:LKwarpParametersUpdate} of the LK-IC and an additive appearance
+parameters update
+\begin{equation}
+  \mathbf{c} \leftarrow \mathbf{c} + \Delta\mathbf{c}
+\end{equation}
+The individual Jacobians
+$\mathbf{J}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}}$ and
+$\mathbf{J}_{\mathbf{u}_i}|_{\mathbf{p}=\mathbf{0}},~\forall i=1,\ldots,n_a$
+are constant and can be precomputed. However, the total Jacobian
+$\mathbf{J}_{\mathbf{a}_{\mathbf{c}}}|_{\mathbf{p}=\mathbf{0}}$
+and hence the Hessian matrix depend on the current estimate of the appearance
+parameters $\mathbf{c}$, thus they need to be computed at every iteration.
+This makes the algorithm very slow with a total cost of
+$\mathcal{O}((n_s+n_a)^2m+(n_s+n_a)^3)$.
+
+\subsubsection{Alternating Inverse-Compositional}
+\label{subsec:aam:inverseCompositional:alternating}
+The Alternating IC (AIC) algorithm, proposed
+in~\cite{papandreou2008adaptive,tzimiropoulos2013optimization}, instead of
+minimizing the cost function simultaneously for both shape and appearance as in
+the SIC algorithm, it solves two separate minimization problems, one for the
+shape and one for the appearance optimal parameters, in an alternating fashion.
+That is
+%%%%%%%%%%%%%%
+\begin{equation}
+  \left\lbrace
+  \begin{aligned}
+  & \argmin_{\Delta\mathbf{p}} \left\lVert \mathbf{t}(\mathcal{W}(\mathbf{p})) - \mathbf{a}_{\mathbf{c}}(\mathcal{W}(\Delta\mathbf{p})) \right\rVert^2_{\mathbf{I}-\mathbf{U}_a\mathbf{U}_a^{\mathsf{T}}} \\
+  & \argmin_{\Delta\mathbf{c}} \left\lVert \mathbf{t}(\mathcal{W}(\mathbf{p})) - \mathbf{a}_{\mathbf{c}  + \Delta\mathbf{c}}(\mathcal{W}(\Delta\mathbf{p}))\right\rVert^2
+  \label{equ:AICcostFunction}
+  \end{aligned}
+  \right.
+\end{equation}
+%%%%%%%%%%%%%%
+The minimization in every iteration is achieved by first using a fixed estimate
+of $\mathbf{c}$ to compute the current estimate of the increment
+$\Delta\mathbf{p}$ and then using the fixed estimate of $\mathbf{p}$ to compute
+the increment $\Delta\mathbf{c}$. More specifically, similar to the previous
+cases and skipping the linearization steps, given the current estimate of
+$\mathbf{c}$, the warp parameters increment is computed from the first cost
+function as
+%%%%%%%%%%%%%%
+\begin{equation}
+  \Delta\mathbf{p} = \mathbf{H}^{-1} \mathbf{J}_{AIC}^{\mathsf{T}} \left[ \mathbf{t}(\mathcal{W}(\mathbf{p})) - \bar{\mathbf{a}} - \mathbf{U}_a\mathbf{c} \right]
+  \label{equ:aicUpdate1}
+\end{equation}
+%%%%%%%%%%%%%%
+where
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{J}_{AIC} = (\mathbf{I}-\mathbf{U}_a\mathbf{U}_a^{\mathsf{T}}) \left[ \mathbf{J}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}} + \sum_{i=1}^{n_a} c_i \mathbf{J}_{\mathbf{u}_i}|_{\mathbf{p}=\mathbf{0}}\right]
+\end{equation}
+%%%%%%%%%%%%%%
+and
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{H}^{-1}=\mathbf{J}_{AIC}^{\mathsf{T}}\mathbf{J}_{AIC}
+\end{equation}
+%%%%%%%%%%%%%%
+Then, given the current estimate of the motion parameters $\mathbf{p}$,
+AIC computes the optimal appearance parameters as the least-squares solution of
+the second cost function of Eq.~\ref{equ:AICcostFunction}, thus
+%%%%%%%%%%%%%%
+\begin{equation}
+  \Delta\mathbf{c} = \mathbf{U}_a^{\mathsf{T}} \left[ \mathbf{t}(\mathcal{W}(\mathbf{p})) - \bar{\mathbf{a}}(\mathcal{W}(\Delta\mathbf{p})) - \mathbf{U}_a(\mathcal{W}(\Delta\mathbf{p})) \mathbf{c} \right]
+  \label{equ:aicUpdate2}
+\end{equation}
+%%%%%%%%%%%%%%
+This alternating optimization is repeated at each iteration. The motion
+parameters are compositionally updated as in
+Eq.~\ref{equ:LKwarpParametersUpdate} and the appearance parameters are updated
+in an additive mode, \ie
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{c} \leftarrow \mathbf{c} + \Delta\mathbf{c}
+\end{equation}
+%%%%%%%%%%%%%%
+AIC algorithm is slower than POIC, but more accurate as it also optimizes with
+respect to the appearance variance. Although the individual Jacobians
+$\mathbf{J}_{\mathbf{u}_i}|_{\mathbf{p}=\mathbf{0}},~\forall i=1,\ldots,n_a$
+and
+$\mathbf{J}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}}$
+can be precomputed, the total Jacobian $\mathbf{J}_{AIC}$ and the Hessian need
+to be evaluated at each iteration. Following the Hessian matrix computation
+technique proposed in~\cite{papandreou2008adaptive}, which improves the cost
+from $\mathcal{O}(n_s^2m)$ to $\mathcal{O}(n_s^2n_a^2)$ (usually $m>n_a^2$)
+and taking into account the Hessian inversion ($\mathcal{O}(n_s^3)$), the total
+cost at each iteration is $\mathcal{O}(n_s^2n_a^2+(n_s+n_a)m+n_s^3)$.
+
+Recently it was shown that AIC and SIC are theoretically equivalent
+(\ie, Eqs.~\ref{equ:aicUpdate1},~\ref{equ:aicUpdate2} are exactly the same as
+Eq.~\ref{equ:sicUpdate}) and that the only difference is their computational
+costs~\cite{tzimiropoulos2013optimization}. That is the SIC algorithm requires
+to invert the Hessian of the concatenated shape and texture parameters
+($O((n_s+n_a)^3)$). However, using the fact that
+%%%%%%%%%%%%%%
+\begin{equation}
+  min_{x,y} f(x,y) = min_x \left(min_y f(x,y)\right)
+\end{equation}
+%%%%%%%%%%%%%%
+and solving first for the texture parameter increments, it was shown that
+\begin{enumerate}
+  \item the complexity of SIC can be reduced dramatically, and
+  \item SIC is equivalent to AIC algorithm~\cite{tzimiropoulos2013optimization}
+  (similar results can be shown by using the Schur's complement of the Hessian of texture and shape parameters).
+\end{enumerate}

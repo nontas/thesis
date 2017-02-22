@@ -1,0 +1,160 @@
+% !TEX root =  ../../../../thesis.tex
+\subsection{Gauss-Newton Generative Model}\label{subsec:generative}
+The optimization of an AAM aims to minimize the reconstruction error of the
+input image with respect to the shape and appearance parameters, \ie,
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:aam_cost}
+    \argmin_{\mathbf{p},\mathbf{c}}\left\lVert\mathbf{f}(\mathbf{s}(\mathbf{p})) - \bar{\mathbf{a}} - \mathbf{U}_a\mathbf{c}\right\rVert^2_2
+\end{equation}
+%%%%%%%%%%%%%%
+where we employ the appearance model of Eq.~\ref{equ:appearance_model} and
+$\mathbf{f}(\cdot)$ denotes the vectorized form of the input image as
+defined in Eq.~\ref{equ:feature_function}. This cost function is commonly
+optimized in an iterative manner using the Gauss-Newton algorithm. This
+algorithm introduces an incremental update for the shape and appearance
+parameters, \ie,, $\Delta\mathbf{p}$ and $\Delta\mathbf{c}$ respectively, and
+solves the problem with respect to $\Delta\mathbf{p}$ by first linearizing using
+first-order Taylor expansion around $\Delta\mathbf{p} = \mathbf{0}$.
+The Gauss-Newton optimization can be performed either in a forward or in an
+inverse manner, depending on whether the incremental update of the shape
+parameters is applied on the image or the model, respectively. In this work,
+we focus on the \emph{inverse} algorithm, however the forward case can be
+derived in a similar way.
+
+We follow the derivation of Chapter~\ref{ch:aam} that was first presented
+in~\cite{papandreou2008adaptive} and later was readily employed
+in~\cite{tzimiropoulos2013optimization,tzimiropoulos2014gauss}. By applying the
+incremental shape parameters on the part of the model, the cost function of
+Eq.~\ref{equ:aam_cost} becomes
+%%%%%%%%%%%%%%
+\begin{equation}
+    \argmin_{\Delta\mathbf{p},\Delta\mathbf{c}}\left\|\mathbf{f}(\mathbf{s}(\mathbf{p})) - \bar{\mathbf{a}}(\Delta\mathbf{p}) - \mathbf{U}_a(\Delta\mathbf{p})(\mathbf{c}+\Delta\mathbf{c})\right\|^2_2
+\end{equation}
+%%%%%%%%%%%%%%
+where
+$\bar{\mathbf{a}}(\Delta\mathbf{p})=\bar{\mathbf{a}}(\mathbf{s}(\Delta\mathbf{p}))$ and
+$\mathbf{U}_a(\Delta\mathbf{p})=\mathbf{U}_a(\mathbf{s}(\Delta\mathbf{p}))$.
+Given the part-based nature of our model, the compositional update of the
+parameters at each iteration is reduced to a simple
+subtraction~\cite{tzimiropoulos2014gauss}, as
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:shape_parameters_update}
+    \mathbf{p} \leftarrow \mathbf{p} - \Delta\mathbf{p}
+\end{equation}
+%%%%%%%%%%%%%%
+By taking the first order Taylor expansion around
+$\Delta\mathbf{p} = \mathbf{0}$, we arrive at
+%%%%%%%%%%%%%%
+\begin{equation}
+    \argmin_{\Delta\mathbf{p},\Delta\mathbf{c}}\left\|\mathbf{f}(\mathbf{s}(\mathbf{p})) - \bar{\mathbf{a}} - \mathbf{U}_a(\mathbf{c}+\Delta\mathbf{c}) - \mathbf{J}_a\Delta\mathbf{p}\right\|^2_2
+\end{equation}
+%%%%%%%%%%%%%%
+where
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:model_jacobian}
+    \mathbf{J}_a=\mathbf{J}_{\bar{\mathbf{a}}} + \sum_{i=1}^mc_i\mathbf{J}_i
+\end{equation}
+%%%%%%%%%%%%%%
+is the model Jacobian. This Jacobian consists of the mean appearance
+Jacobian
+$\mathbf{J}_{\bar{\mathbf{a}}}=\frac{\partial\bar{\mathbf{a}}}{\partial\mathbf{p}}$
+and the Jacobian of each appearance eigenvector denoted as $\mathbf{J}_i,~i=1,\ldots,m$.
+
+By employing the projection operator of Eq.~\ref{equ:projection_matrix} in order
+to work on the orthogonal complement of the appearance subspace $\mathbf{U}_a$
+and using the fact that $\mathbf{P}\mathbf{U}_a=\mathbf{P}^{\mathsf{T}}\mathbf{U}_a=\mathbf{0}$,
+the above cost function can be expressed as
+%%%%%%%%%%%%%%
+\begin{equation}\label{euq:inverse_cost}
+    \argmin_{\Delta\mathbf{p}}\left\|\mathbf{f}(\mathbf{s}(\mathbf{p})) - \bar{\mathbf{a}} - \mathbf{J}_a\Delta\mathbf{p}\right\|^2_{\mathbf{P}}
+\end{equation}
+%%%%%%%%%%%%%%
+The solution to this least-squares problem is
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:inverse_solution}
+    \Delta\mathbf{p} = \hat{\mathbf{H}}_a^{-1}\hat{\mathbf{J}}_a^{\mathsf{T}}(\mathbf{f}(\mathbf{s}(\mathbf{p})) - \bar{\mathbf{a}})
+\end{equation}
+%%%%%%%%%%%%%%
+where
+%%%%%%%%%%%%%%
+\begin{equation}
+    \hat{\mathbf{J}}_a = \mathbf{P}\mathbf{J}_a~\text{and}~\hat{\mathbf{H}}_a = \hat{\mathbf{J}}_a^{\mathsf{T}} \hat{\mathbf{J}}_a
+\end{equation}
+%%%%%%%%%%%%%%
+are the projected-out Jacobian and Hessian matrices respectively. Note that even
+though $\mathbf{J}_{\bar{\mathbf{a}}}$ and $\mathbf{J}_i$ can be precomputed,
+the complete model Jacobian $\mathbf{J}_a$ depends on the appearance parameters
+$\mathbf{c}$ and has to be recomputed at each iteration. Given the current
+estimate of $\Delta\mathbf{p}$, the solution of $\mathbf{c}$ with respect to
+the current estimate $\mathbf{c}_c$ can be retrieved as
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:appearance_parameters_solution}
+    \mathbf{c} = \mathbf{c}_c + \mathbf{U}_a^{\mathsf{T}} \left(\mathbf{f}(\mathbf{s}(\mathbf{p})) - \bar{\mathbf{a}} - \mathbf{U_a}\mathbf{c}_c - \mathbf{J}_a\Delta\mathbf{p}\right)
+\end{equation}
+%%%%%%%%%%%%%%
+Thus, the computational complexity of computing Eq.~\ref{equ:inverse_solution}
+per iteration is $\mathcal{O}(n_sn_amn + n_s^2mn)$.
+%$\mathcal{O}(n_sn_amn + n_s^2mn + n_s^3)$.
+The authors in~\cite{tzimiropoulos2014gauss} suggest that by approximating the
+projected-out Hessian matrix as
+$\hat{\mathbf{H}}_a\approx\mathbf{J}_a^{\mathsf{T}}\mathbf{J}_a$, reduces the
+complexity to $\mathcal{O}(n_amn + n_s^2mn)$ without any significant loss in
+performance.
+
+The inverse approach that we followed, which was first proposed
+in~\cite{papandreou2008adaptive}, is different from the well-known project-out
+inverse compositional method of~\cite{matthews2004active}. Specifically, in our
+case, the linearization of the cost function is performed \textit{before}
+projecting-out. On the contrary, the authors in~\cite{matthews2004active}
+followed the approximation of \emph{projecting-out first and then linearising},
+which eliminates the need to recompute the appearance subspace Jacobian.
+However, the project-out method proposed by~\cite{matthews2004active} does not
+generalize well and is not suitable for generic facial alignment.
+
+Given the fact that $\mathbf{P}^{\mathsf{T}}=\mathbf{P}$ and
+$\mathbf{P}^{\mathsf{T}}\mathbf{P}=\mathbf{P}$,
+then the solution of Eq.~\ref{equ:inverse_solution} can be expanded as
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:inverse_solution_expanded}
+    \Delta\mathbf{p} = (\mathbf{J}_a^{\mathsf{T}}\mathbf{P}\mathbf{J}_a)^{-1}\mathbf{J}_a^{\mathsf{T}}\mathbf{P}(\mathbf{f}(\mathbf{s}(\mathbf{p})) - \bar{\mathbf{a}})
+\end{equation}
+%%%%%%%%%%%%%%
+Thus, it is worth mentioning that the solution of the regression-based model
+in Eq.~\ref{equ:regression_dp} is equivalent to the Gauss-Newton solution of
+Eq.~\ref{equ:inverse_solution} if the regression matrix has the form
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:equivalent_solutions}
+    \mathbf{W}^k = (\mathbf{J}_a^{\mathsf{T}}\mathbf{P}\mathbf{J}_a)^{-1}\mathbf{J}_a^{\mathsf{T}}
+\end{equation}
+%%%%%%%%%%%%%%
+which further reveals the equivalency of the two cost functions of
+Eqs.~\ref{equ:regression_cost} and~\ref{euq:inverse_cost}.
+
+% %% FORWARD
+% \paragraph{Forward} In the forward case, the shape parameters update is performed in an additive fashion, i.e.
+% \begin{equation}
+% \mathbf{p} \leftarrow \mathbf{p} + \Delta\mathbf{p}
+% \end{equation}
+% By employing the projection matrix $\mathbf{P}$ (Eq.~\ref{equ:projection_matrix}), the cost function of Eq.~\ref{equ:aam_cost} takes the form
+% \begin{equation}
+% \argmin_{\Delta\mathbf{p}}\|\mathbf{f}(\mathbf{s}(\mathbf{p} + \Delta\mathbf{p})) - \bar{\mathbf{a}}\|^2_{\mathbf{P}}
+% \label{equ:forward_cost}
+% \end{equation}
+% Opposite to the inverse case, in the forward case the linearisation around $\Delta\mathbf{p}=\mathbf{0}$ is performed on the part of the image as $\mathbf{f}(\mathbf{s}(\mathbf{p}+\Delta\mathbf{p}))\approx\mathbf{f}(\mathbf{s}(\mathbf{p})) + \mathbf{J}_{\mathbf{f}}\Delta\mathbf{p}$, where
+% $\mathbf{J}_{\mathbf{f}}=\frac{\partial \mathbf{f}(\mathbf{s}(\mathbf{p}))}{\partial\mathbf{p}}$ is the image Jacobian. Consequently, the cost function of Eq.~\ref{equ:forward_cost} becomes
+% \begin{equation}
+% \argmin_{\Delta\mathbf{p}}\|\mathbf{f}(\mathbf{s}(\mathbf{p})) - \bar{\mathbf{a}} + \mathbf{J}_{\mathbf{f}}\Delta\mathbf{p}\|^2_{\mathbf{P}}
+% \end{equation}
+% The solution to this problem is readily given by
+% \begin{equation}
+% \Delta\mathbf{p} = - \hat{\mathbf{H}}_{\mathbf{f}}^{-1} \hat{\mathbf{J}}_{\mathbf{f}}^{\mathsf{T}} (\mathbf{f}(\mathbf{s}(\mathbf{p})) - \bar{\mathbf{a}})
+% \label{equ:forward_solution}
+% \end{equation}
+% where
+% \begin{equation}
+% \begin{aligned}
+% &\hat{\mathbf{J}}_{\mathbf{f}} = \mathbf{P}\mathbf{J}_{\mathbf{f}}\\
+% &\hat{\mathbf{H}}_{\mathbf{f}} = \hat{\mathbf{J}}_{\mathbf{f}}^{\mathsf{T}} \hat{\mathbf{J}}_{\mathbf{f}}
+% \end{aligned}
+% \end{equation}
+% are the projected-out Jacobian and Hessian matrices respectively. Note that the image Jacobian and, thus, the Hessian need to be computed at each iteration, which results in a computational cost of $\mathcal{O}()$ per iteration.

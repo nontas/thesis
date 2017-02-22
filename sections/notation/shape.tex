@@ -1,0 +1,134 @@
+% !TEX root =  ../../thesis.tex
+\section{Shape Representation and Model}\label{sec:notation:shape}
+In the problem of generic deformable object alignment (or landmark
+localization), the shape of an object consists of a set of $n$ sparse landmark
+(fiducial) points that are located on semantically meaningful parts of the
+object. Assume that we have an $h\times w$ image $\mathbf{I}$ with $c$ number
+of channels. Let us denote the coordinates of a landmark point within the
+Cartesian space of the image $\mathbf{I}$ as
+%%%%%%%%%%%%%%
+\begin{equation}
+  \boldsymbol{\ell}_i = \left[x_i, y_i\right]^{\mathsf{T}},~\forall i=1,\ldots,n
+\end{equation}
+%%%%%%%%%%%%%%
+where $x_i\in\left[1,w\right]$ and $y_i\in\left[1,h\right]$. The
+sparse \emph{shape instance} of the object is given by the $2n \times 1$ vector
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{s} = \left[\boldsymbol{\ell}_1^{\mathsf{T}}, \boldsymbol{\ell}_2^{\mathsf{T}}, \ldots, \boldsymbol{\ell}_n^{\mathsf{T}} \right]^{\mathsf{T}} = \left[x_1, y_1, x_2, y_2, \ldots, x_n, y_n \right]^{\mathsf{T}}
+  \label{equ:shape}
+\end{equation}
+%%%%%%%%%%%%%%
+Note that the number of landmarks used to annotate the human face in most existing databases is $n=68$.
+
+%%%%%%%%%%%%%%
+\begin{figure}[!t]
+\centering
+\subfloat[Original shapes]{
+\includegraphics[width=0.45\linewidth]{figures/notation/procrustes/procrustes_before}\label{fig_notation:procrustes_before}}
+\subfloat[Aligned shapes and mean shape]{
+\includegraphics[width=0.45\linewidth]{figures/notation/procrustes/procrustes_after}\label{fig_notation:procrustes_after}}
+\caption{Examples of Generalized Procrustes Alignment on the shapes of LFPW trainset. The figure on the left shows the original shapes which expose large differences in terms of rotation, scale and translation due to the differences on the images resolutions and sizes. The figure on the right demonstrates the result of the alignment along with the mean shape.}
+\label{fig:procrustes}
+\end{figure}
+%%%%%%%%%%%%%%
+
+Given a set of $N$ such training shape samples
+$\left\lbrace \mathbf{s}_1, \ldots, \mathbf{s}_N\right\rbrace$,
+a parametric statistical model of the object's shape variance can be
+constructed with the following steps:
+%%%%%%%%%%%%%%%
+\begin{enumerate}
+  \item Align the set of training shapes with respect to the global similarity
+  transform (\ie, scale, in-plane rotation and translation) using Generalized
+  Procrustes Analysis~\cite{gower1975generalized}. Figure~\ref{fig:procrustes}
+  shows an example of the result of such an alignment.
+
+  \item Apply PCA~\cite{jolliffe2002principal,wold1987principal} on the aligned
+  shapes. This involves first centering the aligned shapes by subtracting the
+  mean shape $\bar{\mathbf{s}}$ and then computing the basis of eigenvectors
+  $\mathbf{U}_s\in\mathbb{R}^{2n\times N-1}$.
+
+  \item The returned shape subspace is further augmented with four eigenvectors
+  that control the global similarity transform of the object's shape, thus the
+  PCA subspace now consists of $N + 3$ components. Please refer
+  to~\cite{baker2004lucas} for further details about orthonormalizing the
+  similarity eigenvectors with the PCA basis.
+\end{enumerate}
+%%%%%%%%%%%%%%%
+By keeping the first $n_s$ eigenvectors, the resulting linear shape model
+has the form
+%%%%%%%%%%%%%%
+\begin{equation}
+  \left\lbrace \bar{\mathbf{s}}, \mathbf{U}_s\right\rbrace
+  \label{equ:shape_model}
+\end{equation}
+%%%%%%%%%%%%%%
+where $\mathbf{U}_s\in\mathbb{R}^{2n\times n_s}$ is the orthonormal basis and
+$\bar{\mathbf{s}}\in\mathbb{R}^{2n}$ is the mean shape vector. This linear
+shape model, which is also referred to as Point Distribution Model
+(PDM)~\cite{cootes1995active,cootes2001active}, can be used
+to generate new shape instances using the function
+$\mathcal{S}:\mathbb{R}^{n_s} \longrightarrow \mathbb{R}^{2n}$ as
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{s}_{\mathbf{p}} = \mathcal{S}(\mathbf{p}) \equiv \bar{\mathbf{s}} + \mathbf{U}_s\mathbf{p}
+  \label{equ:shape_generation}
+\end{equation}
+%%%%%%%%%%%%%%
+where
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{p} = \left[p_1,p_2,\dots,p_{n_s}\right]^{\mathsf{T}}
+  \label{equ:shape_parameters}
+\end{equation}
+%%%%%%%%%%%%%%
+is the $n_s\times 1$ vector of \emph{shape parameters} that control the linear
+combination of the eigenvectors. Figure~\ref{fig:shape_model_instances} shows
+some exemplar shape instances generated using the first five principal
+components. The figure varies the parameter that corresponds to each component
+using the values
+$\left\lbrace -3\sqrt{\lambda_i}, -\frac{3}{2}\sqrt{\lambda_i}, \frac{3}{2}\sqrt{\lambda_i}, 3\sqrt{\lambda_i}\right\rbrace,~\forall i=1,\ldots,5$
+where $\lambda_i$ denotes the corresponding eigenvalue.
+
+%%%%%%%%%%%%%%
+\begin{figure}[!t]
+\centering
+%%%%%%%%%
+\subfloat[$p_1=-3\sqrt{\lambda_1}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/0_0}}
+\subfloat[$p_1=-\frac{3}{2}\sqrt{\lambda_1}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/0_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/0_2}}
+\subfloat[$p_1=\frac{3}{2}\sqrt{\lambda_1}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/0_3}}
+\subfloat[$p_1=3\sqrt{\lambda_1}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/0_4}}\\
+%%%%%%%%%
+\subfloat[$p_2=-3\sqrt{\lambda_2}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/1_0}}
+\subfloat[$p_2=-\frac{3}{2}\sqrt{\lambda_2}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/1_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/1_2}}
+\subfloat[$p_2=\frac{3}{2}\sqrt{\lambda_2}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/1_3}}
+\subfloat[$p_2=3\sqrt{\lambda_2}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/1_4}}\\
+%%%%%%%%%
+\subfloat[$p_3=-3\sqrt{\lambda_3}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/2_0}}
+\subfloat[$p_3=-\frac{3}{2}\sqrt{\lambda_3}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/2_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/2_2}}
+\subfloat[$p_3=\frac{3}{2}\sqrt{\lambda_3}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/2_3}}
+\subfloat[$p_3=3\sqrt{\lambda_3}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/2_4}}\\
+%%%%%%%%%
+\subfloat[$p_4=-3\sqrt{\lambda_4}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/3_0}}
+\subfloat[$p_4=-\frac{3}{2}\sqrt{\lambda_4}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/3_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/3_2}}
+\subfloat[$p_4=\frac{3}{2}\sqrt{\lambda_4}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/3_3}}
+\subfloat[$p_4=3\sqrt{\lambda_4}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/3_4}}\\
+%%%%%%%%%
+\subfloat[$p_5=-3\sqrt{\lambda_5}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/4_0}}
+\subfloat[$p_5=-\frac{3}{2}\sqrt{\lambda_5}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/4_1}}
+\subfloat[$\bar{\mathbf{s}}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/4_2}}
+\subfloat[$p_5=\frac{3}{2}\sqrt{\lambda_5}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/4_3}}
+\subfloat[$p_5=3\sqrt{\lambda_5}$]{\includegraphics[width=0.2\linewidth]{figures/notation/shape_model/4_4}}
+%%%%%%%%%
+\caption{Exemplar instances of a statistical shape model (PDM) trained on the
+shapes of LFPW trainset. Each row shows the deformations covered by the first
+five principal components, where $\lambda_i$ is the eigenvalue that corresponds
+to the $i$-th eigenvector.}
+\label{fig:shape_model_instances}
+\end{figure}
+%%%%%%%%%%%%%%

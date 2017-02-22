@@ -1,0 +1,150 @@
+% !TEX root =  ../../thesis.tex
+\section{Problem Scope and Challenges}\label{sec:problem_definition}
+Digital cameras exist everywhere around us and are the artificial ``eyes'' of
+the current and future technological era. We find them embedded in most everyday
+smart electronic devices (\eg, phones, tablets, laptops, TVs, cars, gaming
+consoles, etc.), installed in almost all major urban streets and inside
+commercial stores for surveillance and service purposes, while, of course, they
+are an essential part of modern robotics. This wealth of electronic ``eyes''
+has increased the need and effort to make computers to
+\emph{``recognize and understand what they see''} by inculcating them with the
+ability to learn, detect and recognize.
+
+An important step towards this direction is to enable computers to accurately
+\emph{detect deformable objects under unconstrained conditions (commonly
+referred to as ``in-the-wild'')}, \ie~images obtained in uncontrolled recording
+settings typically containing large variations in terms of illumination,
+identity, pose, and containing occlusions. Deformable objects are articulated
+objects that exhibit rigid shape variations and, in most cases, large
+appearance variations, \eg~the human face, body, cars, etc. Note that the term
+``detection'' does not refer to the task of finding the bounding box of an
+object\footnote{The problem of bounding box object detection is modeled
+differently. The dominant and most popular trend is to learn features invariant
+to the object parts' deformations, such as those learned by Deep Convolutional 
+Neural Networks. Hence, the parts and their deformations are not
+modeled~\cite{girshick2014rich,jiang2016face,li2015convolutional,ren2015faster}.}.
+It refers to the task of localizing a set of \emph{sparse landmark (fiducial)
+points} that correspond to semantically meaningful parts of the object. This
+problem is typically addressed using Deformable Models, which have emerged as
+an important research field during the last few decades, existing at the
+intersection of Computer Vision, Statistical Pattern Recognition and Machine
+Learning. The application of a Deformable Model typically has two phases:
+%%%%%%%%%%%%%%%
+\begin{itemize}
+  \item \emph{Training}: This step involves the training of a model that can
+  describe a deformable object, thus captures its shape and appearance
+  variations. It requires the annotation of visual data that contain the object
+  with a set of landmark points that need to correspond to semantically
+  meaningful parts of the object.
+  \item \emph{Fitting (or Matching)}: This procedure aims to fit the learned
+  Deformable Model to a new image by localizing the landmark points of the
+  object. This is usually achieved through an energy minimization
+  procedure~\cite{matthews2004active,baker2004lucas,papandreou2008adaptive,tzimiropoulos2012generic,antonakos2014hog,tzimiropoulos2014gauss,antonakos2015feature,antonakos2016adaptive,antonakos2015active,alabort2016unified} or, more recently, by
+  applying a cascade of learned
+  rules~\cite{xiong2013supervised,ren2014face,kazemi2014one,asthana2014incremental,zhu2015face,tzimiropoulos2015project,trigeorgis2016mnemonic}.
+  Note that the optimization finds a local minimum, thus fitting is commonly
+  initialized with a bounding box that provides a sparse shape that is close to
+  the optimum.
+\end{itemize}
+%%%%%%%%%%%%%%%
+
+Deformable Models can be separated in two major families based on the
+characteristics of their training and fitting:
+%%%%%%%%%%%%%%%%%
+\begin{enumerate}
+  \item \textbf{Discriminative Models}: The methodologies of this category
+  commonly employ some kind of regression in a cascaded manner in order to
+  localize the landmarks'
+  coordinates~\cite{xiong2013supervised,ren2014face,kazemi2014one,asthana2014incremental,zhu2015face,tzimiropoulos2015project,trigeorgis2016mnemonic}.
+  Thus, they learn average rules (descent directions) from the training set
+  that are readily applied on a test image. This reveals their biggest
+  advantage of having real-time fitting performance. Additionally, they have
+  been proved to be very robust to bad initializations that are far from the
+  desired optimum. However, these techniques are data hungry. Given that they
+  learn a set of generic rules from the training set, they tend to become more
+  accurate by increasing the number of training examples. This, in combination
+  to the fact that their training procedure is computationally expensive due to
+  their discriminative nature, makes the Deformable Models of this category
+  difficult to fine-tune.
+
+  \item \textbf{Generative Models}: The methodologies of this family model the
+  shape and appearance of a deformable object in a probabilistic manner which
+  results in the ability to generate unseen instances of the
+  object~\cite{matthews2004active,cootes2001active,baker2004lucas}.
+  Specifically, they model the joint distribution between observed data and some
+  latent (hidden, unobserved) structure (\eg, the structure of the parts of an
+  observed object and their temporal dynamics). Thanks to their generative
+  nature, their training process is very fast and requires much less training
+  examples compared to discriminative Deformable Models. Their fitting process
+  usually involves minimizing a non-linear least squares energy function that
+  is commonly solved with iterative algorithms such as Gauss-Newton and
+  Gradient
+  Descent~\cite{matthews2004active,baker2004lucas,papandreou2008adaptive,tzimiropoulos2012generic,antonakos2014hog,tzimiropoulos2014gauss,antonakos2015feature,antonakos2016adaptive,antonakos2015active,alabort2016unified}.
+  Thus, their optimization estimates image-specific descent directions which
+  makes them very accurate when initialized close to the optimum. However,
+  their fitting tends to be slow and requires many iterations to converge.
+\end{enumerate}
+%%%%%%%%%%%%%%%%%
+
+During the last decade, we have witnessed \textbf{tremendous developments} in
+the field of Deformable Models, mainly due to:
+%%%%%%%%%%%%%%%
+\begin{itemize}
+  \item The \emph{abundance of visual data}, spread mostly through the Internet
+  via web services such as Google Images, Bing and Youtube. This has led to the
+  development of huge databases (such as PASCAL~\cite{everingham2010pascal},
+  LFW~\cite{learned2016labeled} and the series of ImageNet
+  corpora~\cite{deng2009imagenet}) consisting of visual data captured under
+  unconstrained realistic settings (in-the-wild).
+
+  \item The development of \emph{powerful visual features} that can describe
+  objects in a robust manner (\eg, Scale Invariant Feature Transforms
+  (SIFT)~\cite{lowe1999object}, Histogram of Oriented Gradients
+  (HOG)~\cite{dalal2005histograms}, Local Binary Patterns
+  (LBP)~\cite{ojala1996comparative,ojala2001generalized,ojala2002multiresolution}
+  and recently Deep Convolutional Neural Networks
+  (DCNNs)~\cite{sun2013deep,fan2016approaching}, etc.).
+
+  \item The incorporation of \emph{powerful, mainly discriminative, methodologies}
+  for classification and regression, which led to the development of efficient
+  visual object detection and recognition
+  algorithms~\cite{felzenszwalb2010object,xiong2013supervised,asthana2014incremental,kazemi2014one,ren2014face}.
+\end{itemize}
+%%%%%%%%%%%%%%%
+
+However, even though the above research developments are significant, there
+still exist some important \textbf{disadvantages and challenges} that need to
+be addressed:
+%%%%%%%%%%%%%%%
+\begin{itemize}
+  \item Due to their discriminative nature, most existing methodologies require
+  collection of \emph{many training data} in order to build a powerful
+  Deformable Model with good generalization performance. This means that their
+  training demands plenty of computing resources and time, which makes them
+  inappropriate for re-training and fine-tuning using a common everyday-use
+  device with limited processing power and memory.
+
+  \item Although it is easy to gather large amounts of visual data, their
+  \emph{semantic annotation} in terms of parts of deformable objects, their
+  behaviors, their interactions, and outliers
+  \emph{still remains an expensive, tedious, labor intensive and prone to human
+  errors procedure}. For example, as explained in~\cite{sagonas2016faces}, in
+  the case of facial images' annotation, a trained annotator needs about 5
+  minutes to manually annotate from scratch an image with 68 landmark points
+  (depending on the difficulty of the image). This means that the annotation of
+  1000 images requires about 3.5 days of continuous work, 10000 images require
+  a bit more than a month of continuous work, etc. It is worth mentioning, that
+  due to fatigue a person cannot annotate correctly for more than 4-5 hours per
+  day. Furthermore, except for face, there hardly exists another object that
+  has been annotated with regards to parts.
+
+  \item Due to the lack of a standardized way (benchmark) to compare
+  methodologies and to the \emph{limited existence of open-source code}, the
+  evaluation of newly proposed techniques is inconsistent and, most of the
+  times, unfair. Researchers employ different databases and experimental
+  protocols, which lead to unfair comparisons between existing methods.
+  Moreover, in the vast majority of cases, the released implementations have
+  the form of pre-compiled binaries accompanied with pre-trained models, which
+  makes it impossible to tweak and experiment with.
+\end{itemize}
+%%%%%%%%%%%%%%%

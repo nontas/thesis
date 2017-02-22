@@ -1,0 +1,171 @@
+% !TEX root =  ../../../../thesis.tex
+\subsection{Adaptive Cascaded Regression}\label{subsec:acr}
+As previously explained, both the AAMs of Section~\ref{subsec:generative} and
+traditional SDMs as in~\ref{subsec:regression} suffer from a number of
+disadvantages. To address these disadvantages, we propose ACR which
+combines the two previously described discriminative and generative optimization
+problems into a single unified cost function. Specifically, by employing
+the regression-based objective function of Eq.~\ref{equ:regression_cost}
+along with the Gauss-Newton analytical solution of
+Eq.~\ref{equ:inverse_solution}, the training procedure of ACR aims to minimize
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:acr_cost}
+    \sum_{i=1}^N\sum_{j=1}^P\left\|\Delta\mathbf{p}_{i,j}^k - \left(\lambda^k\mathbf{W}^k - (1-\lambda^k) \mathbf{H}_{i,j}^{-1}\mathbf{J}_{i,j}^{\mathsf{T}}\right) \hat{\mathbf{f}}_{i,j,k}\right\|^2_2
+\end{equation}
+%%%%%%%%%%%%%%
+with respect to $\mathbf{W}^k$, where
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:projected_out_residuals}
+    \hat{\mathbf{f}}_i(\mathbf{s}(\mathbf{p}_{i,j}^k)) = \mathbf{P}\left(\mathbf{f}_i(\mathbf{s}(\mathbf{p}_{i,j}^k)) - \bar{\mathbf{a}}\right)
+\end{equation}
+%%%%%%%%%%%%%%
+is the projected-out residual and $\mathbf{H}_{i,j}$ and $\mathbf{J}_{i,j}$
+denote the Hessian and Jacobian matrices, respectively, of the Gauss-Newton
+optimization algorithm per image $i=1,\ldots,N$ and per
+perturbation $j=1,\ldots,P$.
+$\lambda_k$ is a hyperparameter that controls the weighting between
+the regression-based descent directions and the Gauss-Newton gradient
+descent directions at each level of the cascade $k=1,\ldots,K$.
+The negative sign in front of the gradient descent directions is
+due to the fact that the shape parameters update within the
+inverse Gauss-Newton optimization is performed with subtraction,
+as shown in Eq.~\ref{equ:shape_parameters_update}.
+
+%%%%%%%%%%%%%%%%%%%%%% T R A I N I N G %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Training}
+During training, ACR aims to learn a cascade of $K$ optimal linear regressors
+given the gradient descent directions of each training image at each level.
+Let us assume that we have a set of $N$ training images
+$\{\mathbf{I}_1,\ldots,\mathbf{I}_N\}$ along with the corresponding ground
+truth shapes $\{\mathbf{s}_1,\ldots,\mathbf{s}_N\}$. We also assume that
+we have recovered the ground truth shape parameters for each training
+image $\{\mathbf{p}^*_1,\ldots,\mathbf{p}^*_N\}$ by projecting the ground
+truth shapes against the shape model.
+
+\paragraph{Perturbations} Before performing the training
+procedure, we generate a set of initializations per training image, so that the
+regression function of each cascade level learns how to estimate the descent
+directions that optimize from these initializations to the ground truth shape
+parameters. Consequently, for each training image, we first align the mean
+shape $\bar{\mathbf{s}}$ with the ground truth shape $\mathbf{s}^i$, project it
+against the shape basis $\mathbf{U}_s$ and then generate a set of $P$ random
+perturbations for the first four shape parameters that correspond to the
+global similarity transform. Thus, we have a set of shape parameter vectors
+$\mathbf{p}^k_{i,j},~\forall i=1,\ldots,N,~\forall j=1,\ldots,P$. Since the
+random perturbations are applied on the first four parameters, the rest of
+them remain zero, i.e., $\mathbf{p}^k_{i,j} = [{p_1}_{i,j}^k,{p_2}_{i,j}^k,{p_3}_{i,j}^k,{p_4}_{i,j}^k,\mathbf{0}^{\mathsf{T}}_{n_s-4\times1}]^{\mathsf{T}}$.
+Moreover, the perturbations are sampled from a distribution that models
+the statistics of the detector that will be used for automatic initialization at
+testing time. This procedure is necessary only because we have a limited
+number of training images and can be perceived as training data augmentation.
+It could be avoided if we had more annotated images and a single initialization
+per image using the detector would be adequate. The perturbations are performed
+once at the beginning of the training procedure of ACR. The steps that are
+applied at each cascade level $k=1,\ldots,K$, in order to estimate
+$\mathbf{W}^k$, are the following:
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Step 1: Shape Parameters Increments} Given the
+set of vectors $\mathbf{p}^k_{i,j}$, we formulate the set of shape parameters
+increments vectors
+$\Delta\mathbf{p}^k_{i,j}=\mathbf{p}^*_i-\mathbf{p}^k_{i,j},~\forall i=1,\ldots,N,~\forall j=1,\ldots,P$
+and concatenate them in a $n_s\times NP$ matrix
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:DP}
+    \Delta\mathbf{P}_k = \left[\Delta\mathbf{p}^k_{1,1}~\cdots~\Delta\mathbf{p}^k_{N,P}\right]
+\end{equation}
+%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Step 2: Projected-Out Residuals} The next step is
+to compute the part-based appearance vectors from the perturbed shape locations
+$\mathbf{f}_i(\mathbf{s}(\mathbf{p}^k_{i,j}))$ and then the projected-out
+residuals of Eq.~\ref{equ:projected_out_residuals} $\forall i=1,\ldots,N,~\forall j=1,\ldots,P$.
+These vectors are then concatenated in a single $mn\times NP$ matrix as
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:PHI}
+    \hat{\mathbf{F}}_k = \left[\hat{\mathbf{f}}_1(\mathbf{s}(\mathbf{p}_{1,1}^k))~\cdots~\hat{\mathbf{f}}_N(\mathbf{s}(\mathbf{p}_{N,P}^k))\right]
+\end{equation}
+%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Step 3: Gradient Descent Directions} Compute the
+Gauss-Newton solutions for all the images and their perturbed shapes and
+concatenate them in a $n_s\times NP$ matrix as
+%%%%%%%%%%%%%%
+\begin{equation}
+    \mathbf{G}_k = (1-\lambda^k)\left[
+        \begin{array}{c}
+            [\mathbf{H}^{-1}_{1,1}\mathbf{J}^{\mathsf{T}}_{1,1}\hat{\mathbf{f}}_1(\mathbf{s}(\mathbf{p}_{1,1}^k))]^{\mathsf{T}}\\
+            \vdots\\
+
+            [\mathbf{H}^{-1}_{i,j}\mathbf{J}^{\mathsf{T}}_{i,j}\hat{\mathbf{f}}_i(\mathbf{s}(\mathbf{p}_{i,j}^k))]^{\mathsf{T}}\\
+
+            \vdots\\
+
+            [\mathbf{H}^{-1}_{N,P}\mathbf{J}^{\mathsf{T}}_{N,P}\hat{\mathbf{f}}_N(\mathbf{s}(\mathbf{p}_{N,P}^k))]^{\mathsf{T}}
+        \end{array}
+    \right]^{\mathsf{T}}
+    \label{equ:G}
+\end{equation}
+%%%%%%%%%%%%%%
+Based on the expanded solution of Eq.~\ref{equ:inverse_solution_expanded},
+the calculation of the Jacobian and Hessian per image involves the estimation
+of the appearance parameters using Eq.~\ref{equ:appearance_parameters_solution}
+and then
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:final_hessian_jacobian}
+    \begin{aligned}
+        &\mathbf{J}_{i,j} = \mathbf{J}_a\\
+        &\mathbf{H}_{i,j} = \mathbf{J}_{i,j}^{\mathsf{T}} \mathbf{P} \mathbf{J}_{i,j}
+    \end{aligned}
+\end{equation}
+%%%%%%%%%%%%%%
+where $\mathbf{J}_a$ is computed based on Eq.~\ref{equ:model_jacobian} for each image.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Step 4: Regression Descent Directions}
+By using the matrices definitions of Eqs.~\ref{equ:DP},~\ref{equ:PHI} and~\ref{equ:G},
+the cost function of ACR in Eq.~\ref{equ:acr_cost} takes the form
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:acr_cost_matrices}
+\argmin_{\mathbf{W}^k}\left\|\Delta\mathbf{P}_k - \lambda^k\mathbf{W}^k\hat{\mathbf{F}}_k + \mathbf{G}_k\right\|^2_2
+\end{equation}
+%%%%%%%%%%%%%%
+The closed-form solution of the above least-squares problem is
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:final_regression_solution}
+\mathbf{W}^k = \frac{1}{\lambda^k} \left(\Delta\mathbf{P}_k + \mathbf{G}_k\right) \left({\hat{\mathbf{F}}_k}^{\mathsf{T}} \hat{\mathbf{F}}_k \right)^{-1} {\hat{\mathbf{F}}_k}^{\mathsf{T}}
+\end{equation}
+%%%%%%%%%%%%%%
+Note that the regression matrix of this step is estimated only in case
+$\lambda_k \geq 0$. If $\lambda_k = 0$, then we directly
+set $\mathbf{W}_k=\mathbf{0}_{n_s\times mn}$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Step 5: Shape Parameters Update}
+The final step is to generate the new estimates of the shape parameters per
+training image. By employing Eqs.~\ref{equ:final_regression_solution}
+and~\ref{equ:final_hessian_jacobian}, this is achieved as
+%%%%%%%%%%%%%%
+\begin{equation}
+    \mathbf{p}^{k+1}_{i,j} = \mathbf{p}^k_{i,j} + \left(\lambda_k\mathbf{W}^k - (1-\lambda_k)\mathbf{H}^{-1}_{i,j}\mathbf{J}^{\mathsf{T}}_{i,j}\right)\mathbf{f}_i(\mathbf{s}(\mathbf{p}_{i,j}^k))
+\end{equation}
+%%%%%%%%%%%%%%
+$\forall i=1,\ldots,N$ and $\forall j=1,\ldots,P$. After obtaining
+$\mathbf{p}_{i,j}^{k+1}$, steps 1-5 are repeated for the next cascade level.
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% F I T T I N G %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Fitting}
+In the fitting phase, given an unseen testing image $\mathbf{I}$ and its initial
+shape parameters $\mathbf{p}^0=[p_1^0,p_2^0,p_3^0,p_4^0,\mathbf{0}]^{\mathsf{T}}$, we
+compute the parameters update at each cascade level $k=1,\ldots,K$ as
+%%%%%%%%%%%%%%
+\begin{equation}
+    \mathbf{p}^k = \mathbf{p}^{k-1} + \left(\lambda_k\mathbf{W}^k - (1-\lambda_k)\mathbf{H}^{-1}\mathbf{J}^{\mathsf{T}}\right)\mathbf{f}(\mathbf{s}(\mathbf{p}^{k-1}))
+\end{equation}
+%%%%%%%%%%%%%%
+where the Jacobian and Hessian are computed as described in Step 3 of the
+training procedure (Eq.~\ref{equ:final_hessian_jacobian}). The computational
+complexity per iteration is $\mathcal{O}(n_smn(n_a+n_s+1))$.

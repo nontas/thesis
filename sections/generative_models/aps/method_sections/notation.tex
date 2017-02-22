@@ -1,0 +1,26 @@
+% !TEX root =  ../../../../thesis.tex
+In the problem of object alignment in-the-wild, the sparse shape of the object
+is described using $n$ landmark points that are usually located on semantic
+parts of the object, as explained by Eq.~\ref{equ:shape}. The relative location
+of a landmark point $i$ with respect to a landmark point $j$ is defined as
+\begin{equation}
+  \left.\begin{array}{c}
+    \boldsymbol{\ell}_i=\left[x_i,y_i\right]^{\mathsf{T}}\\ \boldsymbol{\ell}_j=\left[x_j,y_j\right]^{\mathsf{T}}
+  \end{array} \right\rbrace \Rightarrow
+  \begin{array}{l}
+    dx_{ij} = x_i - x_j\\ dy_{ij} = y_i-y_j\\ d\boldsymbol{\ell}_{ij} = \boldsymbol{\ell}_i - \boldsymbol{\ell}_j = \left[dx_{ij},dy_{ij}\right]^{\mathsf{T}}
+  \end{array}
+  \label{equ:relative_location}
+\end{equation}
+%
+Furthermore, we employ the part-based appearance representation of
+Eq.~\ref{equ:part_based_appearance}. To facilitate notation, let us define a
+function $\mathcal{A}: \mathbb{R}^{2n} \longrightarrow \mathbb{R}^{mn}$ that
+extracts a feature-based image vector given a shape instance, as
+\begin{equation}
+  \mathcal{A}(\mathbf{s}) = \left[ \mathcal{F}(\boldsymbol{\ell}_1)^{\mathsf{T}}, \mathcal{F}(\boldsymbol{\ell}_2)^{\mathsf{T}}, \ldots, \mathcal{F}(\boldsymbol{\ell}_n)^{\mathsf{T}}\right]^{\mathsf{T}}
+  \label{equ:aps:feature_function}
+\end{equation}
+ The function concatenates all the vectorized feature-based image patches that
+ correspond to the $n$ landmarks of the shape instance in a vector of length
+ $mn$.

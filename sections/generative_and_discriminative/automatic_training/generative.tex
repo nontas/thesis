@@ -1,0 +1,191 @@
+% !TEX root =  ../../../thesis.tex
+\subsection{Automatic Construction of a Generative AAM}
+\label{sec:automatic_training:generative}
+The generative model employed in this work is no different than the holistic
+AAM presented in Chapter~\ref{ch:aam}. However, in this work, the appearance
+model is trained by employing the robust subspace analysis proposed
+in~\cite{tzimiropoulos2012subspace}, which uses the image gradient orientations (IGO features). Given an image $\mathbf{t}$ in vectorial form with size $L_T\times1$, the so-called \emph{normalized gradients} feature extraction function $\mathcal{F}(\mathbf{t})$ involves the computation of the image gradients $\mathbf{g}_x$, $\mathbf{g}_y$ and the corresponding gradient orientation $\boldsymbol{\varphi}=\arctan{(\mathbf{g}_y/\mathbf{g}_x)}$ as
+%%%%%%%%%%%%%%
+\begin{equation}
+\mathcal{F}(\mathbf{t})=\frac{1}{\sqrt{L_T}}\left[\cos{\boldsymbol{\varphi}},~\sin{\boldsymbol{\varphi}}\right]^{\mathsf{T}}
+\label{equ:featureDefinition}
+\end{equation}
+%%%%%%%%%%%%%%
+where $\cos{\boldsymbol{\varphi}}=\left[\cos{\varphi(1)},\ldots,\cos{\varphi(L_T)}\right]$ and
+$\sin{\boldsymbol{\phi}}=\left[\sin{\varphi(1)},\ldots,\sin{\varphi(L_T)}\right]$.
+Similar to Eq.~\ref{equ:holistic_appearance}, we denote the feature-based warped appearance vector as
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{a}(\mathbf{p}) = \mathbf{t}_{\mathcal{F}}\left(\mathcal{W}(\mathbf{p})\right) \text{ with } \mathbf{t}_{\mathcal{F}} = \mathcal{F}(\mathbf{t})
+\end{equation}
+%%%%%%%%%%%%%%
+that has size $2m\times1$, where $m$ is the number of pixels inside the
+reference (\ie, mean) shape. Remember from Sec.~\ref{sec:notation:appearance}
+that an appearance model is then trained by performing PCA on a set of training
+appearance vectors that results in a subspace of $n_a$ eigenvectors
+$\mathbf{U}_a\in\mathbb{R}^{2m\times n_a}$ and the mean appearance
+$\bar{\mathbf{a}}$. This model can be used to synthesize shape-free texture
+instances using Eq.~\ref{equ:appearance_generation}.
+%
+\begin{figure}[t]
+  \includegraphics[width=\linewidth]{figures/automatic_training/baboon/baboon.png}
+  \caption{Robust kernel. Having a face dataset with 20\% of the images replaced by the baboon, the top and bottom rows show
+  4 principal components of the PCA on intensities and normalized gradients respectively. Note that contrary to
+  the normalized gradients subspace where the baboon is isolated, most intensities eigentextures are corrupted with the baboon.}
+  \label{fig:baboon}
+\end{figure}
+%
+
+The employment of the robust kernel of Eq.~\ref{equ:featureDefinition} has a
+key role in the successful performance of the proposed method, because it
+cancels-out both within-class and out-of-class
+outliers~\cite{tzimiropoulos2012subspace}. This is shown in the ``toy'' example
+of Fig.~\ref{fig:baboon}. In this experiment we have a dataset of 50 aligned
+face images. We replace 20\% of these with the same baboon image and apply PCA
+on intensities and normalized gradients. Figure~\ref{fig:baboon} shows that the
+PCA eigenvectors on intensities (top row) are corrupted with the baboon
+information. On the contrary, the employment of normalized gradients manages to
+separate the baboon information from the facial subspace and isolate it (second
+row). In our case, during the automatic training of the generative model, we
+expect to have both within-class and out-of-class outliers. Since the training
+images are captured in totally unconstrained conditions (\ie, random images
+from the web), we expect many of them to have occluded objects, thus
+within-class outliers. Furthermore, in the cases where the fitted shape is
+either very inaccurate or even scrambled, the warped appearance consists an
+out-of-class outlier. However, the employment of the robust component analysis
+manages to remove such outliers from the appearance subspace.
+
+For the automatic construction of the generative AAM, we formulate an iterative 
+optimization problem that aims to automatically construct an optimal generative
+appearance model that minimizes the mean AAM fitting $\ell_2^2$ norm error over
+all given images. Specifically, given a set of $N$ training images
+$\left\lbrace\mathbf{t}^i\right\rbrace,~i=1,\ldots,N$ and a statistical shape
+model $\{\bar{\mathbf{s}},\mathbf{U}_s\}$, we automatically train an AAM
+appearance model by iteratively solving
+%%%%%%%%%%%%%%
+\begin{equation}
+\begin{aligned}
+& \argmin_{\bar{\mathbf{a}},\mathbf{U}_a,\mathbf{p}^i,\mathbf{c}^i} & & \frac{1}{N}\sum_{i=1}^N\left\|\mathbf{a}^i(\mathbf{p}^i)-\bar{\mathbf{a}}-\mathbf{U}_a\mathbf{c}^i\right\|^2\\
+&\text{subject to} & & \mathbf{U}_a^{\mathsf{T}}\mathbf{U}_a=\mathbf{I}_{eye}
+\end{aligned}
+\label{equ:problem}
+\end{equation}
+%%%%%%%%%%%%%%
+in order to find the optimal appearance subspace $\mathbf{U}_a$ and mean vector
+$\bar{\mathbf{a}}$ that minimize the mean $\ell_2^2$ norm
+of the application of AAM fitting ($\mathbf{p}^i$, $\mathbf{c}^i$) over all
+images. $\mathbf{a}^i(\mathbf{p}^i)$ is the warped feature representation of
+the training image $\mathbf{t}^i$ and $\mathbf{I}_{eye}$ denotes the identity
+matrix. The explanation of this optimization procedure is visualized in
+Fig.~\ref{fig:automaticGenerative}. In brief, the algorithm iteratively trains
+a new PCA appearance model $\{\bar{\mathbf{a}},\mathbf{U}_a\}$ based on the
+current estimate of the $N$ shapes and then re-estimates the parameters
+$\{\mathbf{p}^i,\mathbf{c}^i\},~i=1,\ldots,N$ by minimizing the
+$\ell_2^2$ norm between each warped image and the appearance model instance.
+Consequently, the optimization is solved in two steps:
+
+\begin{figure}[t]
+%\includegraphics[width=\linewidth]{figures/Generative/GenerativeAutomatic.png}
+%\includegraphics[width=\linewidth]{figures/Generative/GenerativeAutomatic_small.png}
+\centering
+\includegraphics[width=0.58\linewidth]{figures/automatic_training/Generative/GenerativeAutomatic2.png}
+\caption{Automatic training of appearance model of Generative AAM. This diagram demonstrates the operation of Generative AAM Training step of Fig.~\ref{fig:systemOverview}.
+Given a set of images and the corresponding bounding boxes from the object detector, the method
+iteratively re-trains the appearance PCA model and re-performs AAM fitting on the images set to update the shapes.}
+\label{fig:automaticGenerative}
+\end{figure}
+%
+\textbf{(a) Fix $\{\mathbf{p}^i,\mathbf{c}^i\}$ and minimize with respect to
+$\{\bar{\mathbf{a}},\mathbf{U}_a\}$}
+In this step we have a current estimate of
+$\{\mathbf{p}^i,\mathbf{c}^i\}$ for each image $i=1,\ldots,N$. From
+the shape parameters estimate we extract the warped feature-based image vectors
+$\{\mathbf{a}^i(\mathbf{p}^i)\}$ on which we train a new PCA appearance model
+$\{\bar{\mathbf{a}},\mathbf{U}_a\}$. The updated subspace is orthogonal, thus
+$\mathbf{U}_a^{\mathsf{T}}\mathbf{U}_a=\mathbf{I}_{eye}$. In this work, we
+keep 150 eigenvectors per iteration.
+
+\textbf{(b) Fix $\{\bar{\mathbf{a}},\mathbf{U}_a\}$ and minimize with respect
+to $\{\mathbf{p}^i,\mathbf{c}^i\}$}
+In this step we have a currently trained statistical appearance model
+$\{\bar{\mathbf{a}},\mathbf{U}_a\}$ and aim to estimate the shape and
+appearance parameters $\{\mathbf{p}^i,\mathbf{c}^i\}$ for each image
+$i=1,\ldots,N$ so that the $\ell_2^2$ norm between each warped image and its
+reconstruction is minimized. Thus, we optimize
+%%%%%%%%%%%%%%
+\begin{equation}
+\argmin_{\mathbf{p}^i,\mathbf{c}^i} \left\lVert \mathbf{a}^i(\mathbf{p}^i) - \bar{\mathbf{a}} - \mathbf{U}_a\mathbf{c}^i\right\rVert^2,~\forall i=1,\ldots,N
+\label{equ:aamCost}
+\end{equation}
+%%%%%%%%%%%%%%
+This minimization can be solved with the efficient Gauss-Newton algorithm of
+Inverse Compositional Image Alignment
+(IC)~\cite{matthews2004active,papandreou2008adaptive,antonakos2014hog,antonakos2015feature,alabort2016unified},
+as presented in Chapter~\ref{ch:aam}
+(Sec.~\ref{sec:aam:featureBasedOptimization}).
+Within the IC framework, Eq.~\ref{equ:aamCost} is written as
+%%%%%%%%%%%%%%
+\begin{equation}
+  \argmin_{\mathbf{p}^i,\mathbf{c}^i} \left\lVert \mathbf{a}^i(\mathbf{p}^i) - \mathbf{a}_{\mathbf{c}^i}(\Delta\mathbf{p}^i)\right\rVert^2
+\end{equation}
+%%%%%%%%%%%%%%
+where $\mathbf{a}_{\mathbf{c}^i}=\bar{\mathbf{a}}+\mathbf{U}_a\mathbf{c}^i$ is
+the model instance and $\Delta\mathbf{p}^i$ is the increment used to
+inverse-compositionally update the shape parameters as
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathcal{W}(\mathbf{p}^i) \leftarrow \mathcal{W}(\mathbf{p}^i) \circ \mathcal{W}(\Delta\mathbf{p}^i)^{-1}
+\end{equation}
+%%%%%%%%%%%%%%
+As mentioned in Chapter~\ref{ch:aam}, the two most commonly used IC
+optimization techniques are Project-Out IC (POIC)~\cite{matthews2004active},
+where the shape and appearance parameters are decoupled, and the Simultaneous
+IC (SIC)~\cite{gross2005generic} where the optimization is done simultaneously
+for the shape and appearance parameters.
+
+We instead perform IC, by optimizing separately for shape and appearance
+parameters in an alternating mode, as proposed in
+Sec.~\ref{sec:aam:featureBasedOptimization}. At each iteration, we have a fixed
+estimate of $\mathbf{p}^i$ and compute the optimal appearance parameters as the
+least-squares solution
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{c}^i = \mathbf{U}_a^{\mathsf{T}} \left[\mathbf{a}^i(\mathbf{p}^i)-\bar{\mathbf{a}}\right]
+  \label{equ:appearanceParametesInverse}
+\end{equation}
+%%%%%%%%%%%%%%
+Then, given the current estimate of $\mathbf{c}^i$ and taking the Taylor
+expansion around $\mathbf{p}^i=\mathbf{0}$, we solve for the shape increment
+%%%%%%%%%%%%%%
+\begin{equation}
+\Delta\mathbf{p}^i = -\left(\mathbf{J}^{\mathsf{T}}\mathbf{J}\right)^{-1} \mathbf{J}^{\mathsf{T}} \left[\mathbf{a}^i(\mathbf{p}^i) - \mathbf{a}_{\mathbf{c}^i}\right]
+\end{equation}
+%%%%%%%%%%%%%%
+where
+%%%%%%%%%%%%%%
+\begin{equation}
+\mathbf{J} = \nabla\mathbf{a}_{\mathbf{c}^i} \frac{\partial\mathcal{W}}{\partial\mathbf{p}^i}
+\end{equation}
+%%%%%%%%%%%%%%
+is the Jacobian matrix with the steepest descent images as its columns. The
+algorithm requires the computation of the inverse Hessian matrix
+$\mathbf{H}=\left(\mathbf{J}^{\mathsf{T}}\mathbf{J}\right)^{-1}$ and the
+current estimate of appearance parameters at each iteration which results in a
+total cost of $\mathcal{O}((n_a+n_s+4)m+(4+n_s)^2m)$.
+
+Even though the initial PCA model is expected to have many outliers and to be
+inaccurate, this optimization technique combined with the robust kernel of
+Eq.~\ref{equ:featureDefinition} iteratively results in an appearance model that
+eliminates the initial outliers. By keeping a small number of eigenvectors at
+each iteration, we ensure that the textures corresponding to inaccurate or
+scrambled shapes will not be included in our subspace. The convergence rate of
+this procedure is shown in Sec.~\ref{subsec:training}.
+
+A drawback of the optimization procedure is that it will stuck in a local
+minimum. In the following, in order to move the generative model from the local
+minimum, we will train a discriminative model using the already trained
+generative. We work under the assumption that the trained generative model is
+reliable enough to provide us with a sufficient number of good fittings in a
+new disjoint set. It is obvious that we need a disjoint set to train the
+discriminative model, since training it in the same dataset as the generative
+would result in overfitting.

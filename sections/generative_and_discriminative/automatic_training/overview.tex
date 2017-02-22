@@ -1,0 +1,43 @@
+% !TEX root =  ../../../thesis.tex
+\section{Method}
+\label{sec:automatic_training:overview}
+Assuming the existence of a statistical shape model of an object (PDM), our
+method automatically trains a generative AAM and in extension a discriminative
+AAM, by only using a dataset of totally unconstrained in-the-wild images
+containing the object and the corresponding bounding boxes. This is achieved by
+alternatingly constructing a generative and a discriminative Deformable Model.
+At each iteration, the training of each of the two models utilizes the fitted
+shapes computed with the other already trained model. This iterative procedure
+is demonstrated in Fig.~\ref{fig:systemOverview}.
+
+Specifically, we separate our set of images and the corresponding bounding
+boxes in two disjoint equally-sized datasets, referred to as the
+\emph{generative} and the \emph{discriminative} that are used for the training
+of the respective models. The first generative model is trained on the initial
+shapes extracted by initializing the PDM mean shape in the bounding boxes. At
+each iteration, the currently trained generative model is used to find the
+fitted shapes on the discriminative database's images. Then, a discriminative
+model is trained on these shapes. At the next iteration, the currently trained
+discriminative model is applied on the images of the generative database to
+extract the shapes estimations. A new version of the generative model is then
+trained based on these extracted shapes of the generative dataset. At the end
+of this iterative procedure, we train a final generative and discriminative AAM
+on the unified database of both datasets.
+
+%
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.65\linewidth]{figures/automatic_training/Overview/SystemOverview.png}
+  \caption{Automatic construction of deformable models. Given two sets of disjoint in-the-wild images and the object detector bounding boxes, our method automatically trains an AAM by training a generative and a discriminative model in an alternating manner.}
+  \label{fig:systemOverview}
+\end{figure}
+%
+
+This alternating training of each model followed by the supply of updated
+shapes to the other and vice versa manages to continuously improve the fitted
+shapes, leading to more accurate models. The role of the discriminative model
+is especially crucial, as it moves the generative model from the local optimum
+that it stuck. Next, in
+Sec.~\ref{sec:automatic_training:generative}
+and~\ref{sec:automatic_training:discriminative} we present the generative and
+discriminative models, respectively.

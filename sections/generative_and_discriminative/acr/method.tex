@@ -1,0 +1,59 @@
+% !TEX root =  ../../../thesis.tex
+\section{Method}\label{sec:acr:method}
+In the following sections, we follow the notation of
+Secs.~\ref{sec:notation:shape} and~\ref{sec:notation:appearance} for the shape
+and appearance models, respectively. Specifically, we employ the same shape representation
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{s} = \left[\boldsymbol{\ell}_1^{\mathsf{T}}, \boldsymbol{\ell}_2^{\mathsf{T}}, \ldots, \boldsymbol{\ell}_n^{\mathsf{T}} \right]^{\mathsf{T}} = \left[x_1, y_1, x_2, y_2, \ldots, x_n, y_n \right]^{\mathsf{T}}
+\end{equation}
+%%%%%%%%%%%%%%
+as well as a shape model of the form of Eq.~\ref{equ:shape_model}. With some
+abuse of notation, let us redefine the shape generation formulation of
+Eq.~\ref{equ:shape_generation} as a function, \ie,
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{s}(\mathbf{p})=\bar{\mathbf{s}} + \mathbf{U}_s\mathbf{p}
+\end{equation}
+%%%%%%%%%%%%%%
+where $\mathbf{p}=[p_1,p_2,\ldots,p_{n_s}]^{\mathsf{T}}$ is the $n_s\times1$
+vector of \emph{shape parameters} that control the linear combination of the
+eigenvectors.
+
+Moreover, we employ a part-based appearance representation as explained in
+Sec.~\ref{sec:notation:part_based}. With some abuse of notation, we redefine
+Eq.~\ref{equ:part_based_appearance} as a function, \ie,
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathbf{f}(\mathbf{s}) = \left[ \mathcal{F}(\mathbf{t}_{\boldsymbol{\ell}_1})^{\mathsf{T}}, \mathcal{F}(\mathbf{t}_{\boldsymbol{\ell}_2})^{\mathsf{T}}, \ldots,
+  \mathcal{F}(\mathbf{t}_{\boldsymbol{\ell}_n})^{\mathsf{T}} \right]^{\mathsf{T}}
+  \label{equ:feature_function_acr}
+\end{equation}
+%%%%%%%%%%%%%%
+We also create an appearance model following the description of
+Sec.~\ref{sec:notation:appearance_model}, which can be used to generate new
+appearance vectors with the function
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:appearance_model}
+    \mathbf{a}(\mathbf{c}) = \bar{\mathbf{a}} + \mathbf{U}_a\mathbf{c}
+\end{equation}
+%%%%%%%%%%%%%%
+where $\mathbf{c}=[c_1,c_2,\ldots,c_{n_a}]^{\mathsf{T}}$ is the $n_a\times1$
+vector of \emph{appearance parameters}. Finally, let us define
+%%%%%%%%%%%%%%
+\begin{equation}\label{equ:projection_matrix}
+    \mathbf{P} = \mathbf{E}-\mathbf{U}_a\mathbf{U}_a^{\mathsf{T}}
+\end{equation}
+%%%%%%%%%%%%%%
+which is the orthogonal complement of the appearance subspace $\mathbf{U}_a$,
+where $\mathbf{E}$ denotes the $mn\times mn$ identity matrix. This projection
+operator is used in order to project-out the appearance variance in the
+following methods.
+
+In the following sections, we present details of the discriminative
+(Sec.~\ref{subsec:regression}) and generative (Sec.~\ref{subsec:generative})
+models in order to formulate our unified model (Sec.~\ref{subsec:acr}).
+
+\input{sections/generative_and_discriminative/acr/method_secs/regression}
+\input{sections/generative_and_discriminative/acr/method_secs/generative}
+\input{sections/generative_and_discriminative/acr/method_secs/proposed}

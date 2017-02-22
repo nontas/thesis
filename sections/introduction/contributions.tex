@@ -1,0 +1,114 @@
+% !TEX root =  ../../thesis.tex
+\section{Contributions}
+In this section, the main contributions of this Ph.D. thesis are described in
+more detail and related to the aforementioned objectives of
+Sec.~\ref{sec:objectives}.
+
+%%%%%%%%%%%%%%%%%
+\begin{itemize}
+  \item \textbf{Chapter~\ref{ch:aam}. Feature-based Active Appearance Models.}
+  Lucas-Kanade (LK)~\cite{baker2003lucas,baker2004lucas} is a Gauss-Newton
+  algorithm that has become the standard choice for performing parametric image
+  alignment with respect to the parameters of an affine transform. Various
+  alterations have been proposed depending on the characteristics of the
+  performed optimization. Additionally, Active Appearance Models
+  (AAMs)~\cite{cootes2001active,matthews2004active} is the most popular
+  generative Deformable Model that employs the LK algorithm during fitting.
+  Even though lots of improvements had been proposed for LK and AAMs, their
+  performance was still poor compared to discriminative methodologies. In this
+  chapter, we show that the combination of the non-linear least-squares
+  optimization of a generative holistic Deformable Model with
+  highly-descriptive, dense appearance features
+  (\eg~HOG~\cite{dalal2005histograms}, SIFT~\cite{lowe1999object}) can achieve
+  excellent performance for the task of face alignment. We show that even
+  though the employment of dense features increases the data dimensionality,
+  there is a small raise in the time complexity and a significant improvement
+  in the alignment accuracy. The presented experiments also provide a
+  comparison between various features and prove that HOG and SIFT are the most
+  powerful. We present very accurate and robust experimental results for both
+  face alignment and fitting with feature-based LK and holistic AAMs, that
+  prove their invariance to illumination and expression changes and their
+  generalization ability to unseen faces. Especially in the case of HOG and
+  SIFT holistic AAMs, we demonstrate results on in-the-wild databases that
+  significantly outperform various powerful and efficient discriminative
+  Deformable Models. This chapter provides solution to Objective 1 in
+  Sec.~\ref{sec:objectives}.
+
+  \item \textbf{Chapter~\ref{ch:aps}. Active Pictorial Structures.} In this
+  chapter, we exploit the effectiveness of part-based generative Deformable
+  Models and shed light towards using a structure-based modeling for the shape
+  and appearance of a deformable object. Specifically, we present a novel
+  generative Deformable Model motivated by Pictorial Structures
+  (PS)~\cite{fischler1973representation,felzenszwalb2005pictorial,andriluka2009pictorial} and
+  AAMs~\cite{matthews2004active,antonakos2014hog,antonakos2015feature} for face
+  alignment in-the-wild. Inspired by the tree structure used in PS, the
+  proposed Active Pictorial Structures (APS) models the appearance of the
+  object using multiple graph-based pairwise normal distributions (Gaussian
+  Markov Random Field) between the patches extracted from the regions around
+  adjacent landmarks. We show that this formulation is more accurate than using
+  a single multivariate distribution (Principal Component Analysis) as commonly
+  done in the literature. APS employs a weighted inverse compositional
+  Gauss-Newton optimization with fixed Jacobian and Hessian that achieves close
+  to real-time performance and state-of-the-art results. Finally, APS has a
+  spring-like graph-based deformation prior term that makes them robust to bad
+  initializations. We present extensive experiments on the task of face
+  alignment, showing that APS outperforms many generative and discriminative
+  Deformable Models. Note that APS is the first weighted inverse compositional
+  technique that proves to be so accurate and efficient at the same time.
+  Additionally, thanks to its formulation, APS is suitable for articulated
+  deformable objects with multiple degrees of freedom, such as the human body,
+  hand, etc. This chapter provides solution to Objective 1 of
+  Sec.~\ref{sec:objectives}.
+
+  \item \textbf{Chapter~\ref{ch:automatic_training}. Automatic Construction of
+  Deformable Models.} As explained in Sec.~\ref{sec:problem_definition}, in
+  order to train Deformable Models with good generalization ability, a large
+  amount of carefully annotated data is required, which is a highly time
+  consuming and costly task. In this chapter, we propose the first method for
+  automatic construction of deformable models using images captured
+  in-the-wild. The only requirements of the method are a crude bounding box
+  object detector and a priori knowledge of the object’s shape (\eg~a point
+  distribution model). The object detector can be as simple as the Viola-Jones
+  algorithm~\cite{viola2001rapid,viola2004robust,viola2005detecting} (e.g. even
+  the cheapest digital camera features a robust face detector). The 2D shape
+  model can be created by using only a few shape examples with deformations. In
+  our experiments on facial Deformable Models, we show that the proposed
+  automatically built model not only performs well, but also outperforms
+  discriminative models trained on carefully annotated data. Note that this
+  chapter deals with Objective 2 in Sec.~\ref{sec:objectives} and the proposed
+  methodology is the first one that shows that an automatically constructed
+  model can perform as well as methods trained directly on annotated data.
+
+  \item \textbf{Chapter~\ref{ch:acr}. Adaptive Cascaded Regression.} As
+  explained in Sec.~\ref{sec:problem_definition}, the two predominant families
+  of Deformable Models are: \emph{(i)}~discriminative models that employ
+  cascaded
+  regression~\cite{xiong2013supervised,ren2014face,kazemi2014one,asthana2014incremental,zhu2015face,tzimiropoulos2015project},
+  and
+  \emph{(ii)}~generative models optimized with the iterative Gauss-Newton
+  algorithm~\cite{matthews2004active,papandreou2008adaptive,tzimiropoulos2012generic,antonakos2014hog,tzimiropoulos2014gauss,antonakos2015feature,alabort2016unified}.
+  Although both of these approaches have been found to work well in practice,
+  they each suffer from convergence issues. Cascaded regression has no
+  theoretical guarantee of convergence to a local minimum and thus may fail to
+  recover the fine details of the object. Gauss-Newton optimization is not
+  robust to initializations that are far from the optimal solution. In this
+  chapter, we propose to combine the best of these two worlds under a unified
+  model, which directly answers Objective 3 in Sec.~\ref{sec:objectives}. We
+  show that by combining the descent directions of cascaded regressors with the
+  gradient descent directions from Gauss-Newton optimization, we can achieve
+  both robustness to challenging initializations and accuracy with respect to
+  fine details. Finally, we report state-of-the-art performance on the task of
+  facial alignment against all current state-of-the-art generative and
+  discriminative Deformable Models. Our experiments are shown on the latest and
+  most challenging face alignment challenge and ACR is compared against
+  methodologies that are trained on more data and are used by industrial
+  companies.
+
+  \item \textbf{Section~\ref{sec:menpo}. The Menpo Project.} An open-source
+  implementation is provided for all the proposed methodologies within the
+  Menpo Project~\cite{menpo2014,alabort2016menpo}. The Menpo Project is a set
+  of open source, cross-platform Python frameworks and associated tooling that
+  provide end-to-end solutions for 2D and 3D deformable modeling.This fulfills
+  Objective 4 of Sec.~\ref{sec:objectives}.
+\end{itemize}
+%%%%%%%%%%%%%%%%%

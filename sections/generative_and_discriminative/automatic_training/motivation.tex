@@ -1,0 +1,126 @@
+% !TEX root =  ../../../thesis.tex
+\section{Motivation}
+In order to train Deformable Models with good generalization ability, a large
+amount of carefully annotated data is needed. Developing useful datasets and
+benchmarks that can contribute in the progress of an application domain is a
+highly time consuming and costly procedure. It requires both careful selection
+of the images, so that they can model the vast amount of an object's
+variability, and careful annotation of the various parts of the object (or
+landmarks). The amount of annotation that is required depends on both the
+object and the application. In faces, for example, where many landmark points
+are needed in tasks such as facial expression analysis, motion capture and
+expression transfer, usually more than 60 points are
+annotated~\cite{belhumeur2011localizing,le2012interactive,zhu2012face,sagonas2013300,sagonas2013semi,sagonas2016faces}.
+To illustrate how much time consuming careful face annotation is, according to
+our experience, a trained annotator may need an average of 5 minutes per image
+for the manual annotation of 68 landmarks. This highly depends on many factors
+such as the image's illumination and resolution, the presence of occlusions and
+the face's pose and expression. Thus, the annotation of 1000 images requires a
+total of about 83 hours. Note that it is very difficult to consecutively
+annotate for more than 4 hours. Furthermore, in many cases, fatigue can cause
+errors on the accuracy and consistency of annotations and they may require
+correction.
+
+In this chapter, we deal with the problem of automatically constructing a
+robust Deformable Model using
+\begin{enumerate}
+  \item A simple bounding box object detector, and
+  \item A shape by means of a Point Distribution Model (PDM) (Sec.~\ref{sec:notation:shape})
+\end{enumerate}
+The detector can be as simple as the Viola-Jones object
+detector~\cite{viola2001rapid,viola2004robust,viola2005detecting} which returns
+only a bounding box of a detected object. Such detectors are widely employed in
+commercial products (\eg, even the cheapest digital camera has a robust face
+detector). Other detectors that can be used are efficient sub-window
+search~\cite{lampert2009efficient} and DPM~\cite{zhu2012face}. The annotations
+that are needed to train the object detector can be acquired very quickly,
+since only a bounding box containing the object is required. Specifically,
+after selecting the images that are going to be used, the annotation procedure
+takes a couple of seconds per image. The statistical shape model can be created
+by using only 40-50 shape examples, which can be produced by either drawing
+possible shape variations of the 2D shape of the object or projecting 3D CAD
+model instances of the object on the 2D camera plane (such an example is shown
+in~\cite{zia2011revisiting} for cars). Even the annotation of the shape
+examples is not a time consuming task, due to their small number. Furthermore,
+there are unsupervised techniques to learn the shape prior (model) directly
+from images~\cite{jiang2009learning,kokkinos2007unsupervised}.
+
+The two most closely related works to the proposed method are the automatic
+construction of AAMs~\cite{baker2004automatic} and the so-called RASL
+methodology~\cite{peng2012rasl} for person-specific face alignment.
+There are two main differences between our framework
+and~\cite{baker2004automatic}:
+\begin{enumerate}
+  \item We use a predefined statistical shape model instead of trying to find
+  both the shape and appearance models. We believe that with the current
+  available optimization techniques, it is extremely difficult to
+  simultaneously optimize for both the texture and shape parameters.
+
+  \item We employ the robust component analysis
+  of~\cite{tzimiropoulos2012subspace} for the appearance which deals with
+  outliers.
+\end{enumerate}
+Thus, even though our method is similar in concept
+to~\cite{baker2004automatic}, these two differences make the problem feasible
+to solve. In particular, the methodology in~\cite{baker2004automatic} fails to
+create a generic model even in controlled recording conditions, due to
+extremely high dimensionality of the parameters to be found and to the
+sensitivity of the subspace method to outliers. This was probably one of the
+reasons why the authors demonstrate very limited and only person-specific
+experiments. Furthermore, our methodology bypasses some of the limitations
+of~\cite{peng2012rasl}, which requires the presence of only one low-rank
+subspace, hence it has been shown to work only for the case of congealing
+images of a single person. Finally, we argue that in order for an automatically
+constructed AAM methodology to be robust to both within-class and out-of-class
+outliers\footnote{Within-class outliers refer to outliers present in the image
+of an object such as occlusion. Out-of-class outliers refer to images of
+irrelevant objects or to background.},
+which cannot be avoided in totally unsupervised settings, statistical component
+analysis techniques should be employed~\cite{baker2004automatic}.
+
+To summarize, the contributions of this work are as follows:
+\begin{itemize}
+  \item We propose the first, to the best of our knowledge, methodology for
+  automatic construction of both a generative and a discriminative AAM given
+  only a dataset of images with the respective bounding boxes and a statistical
+  shape model (PDM). Even though our method uses a similar texture model
+  to~\cite{tzimiropoulos2012generic}, it is considerably different, since in
+  that work an AAM is built using only annotated data, while our technique
+  constructs the texture model in a fully automatic manner.
+
+  \item We propose a discriminatively trained AAM methodology using the robust
+  component analysis in~\cite{tzimiropoulos2012subspace}. Inspired by the
+  recent success in applying a cascade of
+  regressors~\cite{dollar2010cascaded,xiong2013supervised,cao2014face,saragih2006iterative}
+  to discriminatively learn a model for face alignment, we follow a similar
+  line of research. The proposed discriminative AAM uses the robust component
+  analysis~\cite{tzimiropoulos2012subspace} due to the fact it is trained on
+  automatically annotated data, hence it needs to be robust to all kinds of
+  outliers.
+
+  \item Overall, the proposed methodology constructs a very powerful model, by
+  iteratively training a generative fully automatically built AAM and then a
+  discriminative AAM learned from the fitted shapes of the generative AAM. The
+  method can be applied to the detection of any deformable object and thus to
+  automatic classification/recognition applications. This is the first, to the
+  best of our knowledge, fully automatic methodology for creating deformable
+  model that outperforms state-of-the-art methodologies that were trained
+  directly on the manually annotated data.
+\end{itemize}
+
+\noindent The content of this chapter is based on the following publication:
+\begin{itemize}
+  \item \textbf{E. Antonakos}, and S. Zafeiriou.
+  ``Automatic Construction of Deformable Models In-The-Wild'',
+  \emph{Proceedings of IEEE International Conference on Computer Vision and Pattern Recognition (CVPR)},
+  Columbus, OH, USA, pp. 1813-1820, June 2014.
+\end{itemize}
+
+The rest of the chapter is structured as follows:
+Section~\ref{sec:automatic_training:overview} gives an overview of the proposed
+method where Sections~\ref{sec:automatic_training:generative}
+and~\ref{sec:automatic_training:discriminative} elaborate on the generative and
+discriminative models, respectively.
+Section~\ref{sec:automatic_training:experimentalResults} shows extended
+experimental results. Finally, Section~\ref{sec:automatic_training:conclusions}
+draws conclusions.

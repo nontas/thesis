@@ -1,0 +1,184 @@
+% !TEX root =  ../../../../thesis.tex
+\subsection{Model Training}\label{subsec:aps:training}
+APS differ from most existing generative object alignment methods because they
+assume a GMRF structure in order to model the appearance and the deformation of
+an object. As we show in the experiments, this assumption is the key that makes
+the proposed method efficient and accurate.
+
+In order to train APS, assume that we have a set of $N$ training images
+$\left\lbrace \mathbf{I}^1,\ldots,\mathbf{I}^N\right\rbrace$ with the
+corresponding ground truth (manually annotated) shapes
+$\left\lbrace\mathbf{s}^1,\ldots,\mathbf{s}^N\right\rbrace$.
+
+
+%% SHAPE MODEL
+\subsubsection{Shape Model}
+APS use a statistical shape model built using PCA, similar to the PDM employed
+in most existing parametric methods such as AAMs, CLMs and GN-DPMs. As
+explained in Sec.~\ref{sec:notation:shape}, the procedure involves the
+alignment of the training shapes with respect to their rotation, translation
+and scaling (similarity transform) using Procrustes analysis, the subtraction
+of the mean shape and the application of PCA. We further augment the acquired
+subspace with four eigenvectors that control the global similarity transform of
+the object, re-orthonormalize~\cite{matthews2004active} and keep the first
+$n_s$ eigenvectors. Thus, we end up with a linear shape model
+$\{\bar{\mathbf{s}},\mathbf{U}\in\mathbb{R}^{2n\times n_s}\}$, where
+$\bar{\mathbf{s}}=\left[E(\boldsymbol{\ell}_1)^{\mathsf{T}},\ldots,E(\boldsymbol{\ell}_n)^{\mathsf{T}}\right]^{\mathsf{T}}$
+is the $2n\times1$ mean shape vector and $\mathbf{U}$ denotes the orthonormal
+basis.
+
+Let us define a function $\mathcal{S}\in\mathbb{R}^{2n}$ with slightly
+different signature than Eq.~\ref{equ:shape_generation}. Specifically, it
+generates a shape instance given the linear model's basis, an input shape and a
+parameters' vector (weights) as
+%%%%%%%%%%%%%%
+\begin{equation}
+\mathcal{S}(\mathbf{U},\mathbf{s},\mathbf{p})=\mathbf{s}+\mathbf{U}\mathbf{p}
+\label{equ:shape_instance}
+\end{equation}
+%%%%%%%%%%%%%%
+where $\mathbf{p}=[p_1,p_2,\ldots,p_{n_s}]^{\mathsf{T}}$ are the parameters'
+values. Similarly, we define the set of functions
+$\mathcal{S}_i\in\mathbb{R}^2,~\forall i=1,\ldots,n$ that return the
+coordinates of the $i^{\text{th}}$ landmark of the shape instance as
+%%%%%%%%%%%%%%
+\begin{equation}
+\mathcal{S}_i(\mathbf{U},\mathbf{s},\mathbf{p})=\mathbf{s}_{2i-1, 2i}+\mathbf{U}_{2i-1, 2i}\mathbf{p},~\forall i=1,\ldots,n
+\label{equ:shape_instance_i}
+\end{equation}
+%%%%%%%%%%%%%%
+where $\mathbf{s}_{2i-1, 2i}$ denotes the coordinates' vector of the
+$i^{\text{th}}$ landmark point, \ie,
+$\boldsymbol{\ell}_i=[x_i,y_i]^{\mathsf{T}}$, and $\mathbf{U}_{2i-1, 2i}$
+denotes the $2i-1$ and $2i$ row vectors of the shape subspace $\mathbf{U}$.
+%
+Note that from now onwards, for simplicity, we will write
+$\mathcal{S}(\mathbf{s},\mathbf{p})$ and $\mathcal{S}_i(\mathbf{s},\mathbf{p})$
+instead of $\mathcal{S}(\mathbf{U},\mathbf{s},\mathbf{p})$ and
+$\mathcal{S}_i(\mathbf{U},\mathbf{s},\mathbf{p})$ respectively.
+
+Another way to build the shape model is by using the GMRF structure
+(Fig.~\ref{fig:gmrf}). Specifically, given an undirected graph $G^s=(V^s,E^s)$
+and assuming that the pairwise locations' vector of two connected landmarks
+follows a normal distribution as in Eq.~\ref{equ:pairwise_distribution}, \ie,
+%%%%%%%%%%%%%%
+\begin{equation}
+  [\boldsymbol{\ell}_i^{\mathsf{T}},
+  \boldsymbol{\ell}_j^{\mathsf{T}}]^{\mathsf{T}} \sim \mathcal{N}(\boldsymbol{\mu}^s_{ij}, \boldsymbol{\Sigma}^s_{ij}),~\forall i,j:(v_i^s, v_j^s)\in E^s
+\end{equation}
+%%%%%%%%%%%%%%
+we formulate a GMRF. Following Eq.~\ref{equ:gmrf_distribution} and using the
+shape vector of Eq.~\ref{equ:shape}, this can be expressed as
+%%%%%%%%%%%%%%
+\begin{equation}
+  p(\mathbf{s} | G^s)\sim\mathcal{N}(\bar{\mathbf{s}}, \boldsymbol{\Sigma}^s)
+\end{equation}
+%%%%%%%%%%%%%%
+where the precision matrix $\mathbf{Q}^s$ is structured as shown in
+Eq.~\ref{equ:precision_structure_1} with $\mathbf{x}_i=\boldsymbol{\ell}_i$ and
+$k=2$.
+Then, after constructing the precision matrix, we can invert it and apply PCA
+on the resulting covariance matrix $\boldsymbol{\Sigma}^s=(\mathbf{Q}^s)^{-1}$
+in order to obtain a linear shape model. Even though, as we show below, the
+GMRF-based modeling creates a more powerful appearance model representation, it
+does not do the same for the shape model. Our experiments suggest that the
+single Gaussian PCA shape model is more beneficial than any other model that
+assumes a GMRF structure. This can be explained by the fact that
+$\boldsymbol{\Sigma}^s$ ends up having a high rank, especially if $G^s$ has
+many edges. As a result, most of its eigenvectors correspond to non-zero
+eigenvalues and they express a small percentage of the whole data variance.
+This means that during fitting we need to employ a large number of eigenvectors
+($n_s \approx 2n$), much more than in the case of a single multivariate
+distribution, which makes the Gauss-Newton optimization very unstable and
+ineffective.
+
+%% APPEARANCE MODEL
+\subsubsection{Appearance Model}
+In most AAM-like formulations, the appearance model is built by warping all
+textures to a reference frame, vectorizing and building the PCA model. In this
+work, we propose to model the appearance of an object using a GMRF graphical
+model, as presented in Sec.~\ref{subsec:graphical_model}. In contrast to the
+shape model case, the GMRF-based appearance model is more powerful than its PCA
+counterpart. Specifically, given an undirected graph $G^a=(V^a,E^a)$ and
+assuming that the concatenation of the appearance vectors of two connected
+landmarks can be described by a normal distribution
+(Eq.~\ref{equ:pairwise_distribution}), \ie,
+%%%%%%%%%%%%%%
+\begin{equation}
+  \left[ \mathcal{F}(\boldsymbol{\ell}_i)^{\mathsf{T}}, \mathcal{F}(\boldsymbol{\ell}_j)^{\mathsf{T}} \right]^{\mathsf{T}} \sim \mathcal{N}(\boldsymbol{\mu}^a_{ij}, \boldsymbol{\Sigma}^a_{ij}),~\forall i,j:(v_i^a, v_j^a)\in E^a
+\end{equation}
+%%%%%%%%%%%%%%
+we form a GMRF that, using Eq.~\ref{equ:aps:feature_function}, can be expressed
+as
+%%%%%%%%%%%%%%
+\begin{equation}
+  p(\mathcal{A}(\mathbf{s}) | G^a)\sim\mathcal{N}(\bar{\mathbf{a}}, \boldsymbol{\Sigma}^a)
+\end{equation}
+%%%%%%%%%%%%%%
+where
+$\bar{\mathbf{a}}=\left[E(\mathcal{F}(\boldsymbol{\ell}_1))^{\mathsf{T}},\ldots,E(\mathcal{F}(\boldsymbol{\ell}_n))^{\mathsf{T}}\right]^{\mathsf{T}}$
+is the $mn\times1$ mean appearance vector and
+$\mathbf{Q}^a=(\boldsymbol{\Sigma}^a)^{-1}$ is the $mn\times mn$ precision
+matrix that is structured as shown in Eq.~\ref{equ:precision_structure_1} with
+$\mathbf{x}_i=\mathcal{F}(\boldsymbol{\ell}_i)$ and $k=m$. During the training
+of the appearance model, we utilize the low rank representation of each
+edgewise covariance matrix $\boldsymbol{\Sigma}_{ij}^a$ by using the first
+$n_a$ singular values of its SVD factorization.
+Given $\bar{\mathbf{a}}$ and $\mathbf{Q}^a$, the cost of an observed appearance
+vector $\mathcal{A}(\mathbf{s})$ corresponding to a shape instance
+$\mathbf{s}=\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})$ in an image is
+%%%%%%%%%%%%%%
+\begin{equation}
+  \begin{aligned}
+  & \left\lVert\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))-\bar{\mathbf{a}}\right\rVert^2_{\mathbf{Q}^a} =\\
+  =&\left[\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))-\bar{\mathbf{a}}\right]^{\mathsf{T}} \mathbf{Q}^a \left[\mathcal{A}(\mathcal{S}(\bar{\mathbf{s}},\mathbf{p}))-\bar{\mathbf{a}}\right]
+  \end{aligned}
+  \label{equ:appearance_cost}
+\end{equation}
+%%%%%%%%%%%%%%
+Our experiments show that all the tested GMRF-based appearance models greatly
+outperform the PCA-based one.
+
+
+% DEFORMATION
+\subsubsection{Deformation Prior}
+Apart from the shape and appearance models, we also employ a deformation prior
+that is similar to the deformation models used
+in~\cite{felzenszwalb2005pictorial,zhu2012face}. Specifically, we define a
+directed (cyclic or acyclic) graph between the landmark points as
+$G^d=(V^d, E^d)$ and model the relative locations between the parent and child
+of each edge with the GMRF of Eq.~\ref{equ:deformation_gmrf}. We assume that
+the relative location between the vertexes of each edge, as defined in
+Eq.~\ref{equ:relative_location}, follows a normal distribution
+%%%%%%%%%%%%%%
+\begin{equation}
+  \boldsymbol{\ell}_i-\boldsymbol{\ell}_j\sim\mathcal{N}(\boldsymbol{\mu}^d_{ij}, \boldsymbol{\Sigma}^d_{ij}),~\forall(i,j):(v^d_i,v^d_j)\in E^d
+\end{equation}
+%%%%%%%%%%%%%%
+and model the overall structure with a GMRF that has a $2n\times2n$ precision
+matrix $\boldsymbol{Q}^d$ given by Eq.~\ref{equ:precision_structure_2} with
+$k=2$. The mean relative locations vector used in this case is the same as the
+mean shape $\bar{\mathbf{s}}$, because
+$\boldsymbol{\mu}^d_{ij}=E(\boldsymbol{\ell}_i-\boldsymbol{\ell}_j)=E(\boldsymbol{\ell}_i)-E(\boldsymbol{\ell}_j)$. As mentioned
+in~\cite{felzenszwalb2005pictorial}, the normal distribution of each edge's
+relative locations vector in some sense controls ``the stiffness of a spring
+connecting the two parts''. In practice, this spring-like model manages to
+constrain extreme shape configurations that could be evoked during fitting with
+very bad initialization, leading the optimization process towards a better
+result.
+%
+Given $\bar{\mathbf{s}}$ and $\mathbf{Q}^d$, the cost of observing a shape
+instance $\mathbf{s}=\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})$ is
+%%%%%%%%%%%%%%
+\begin{equation}
+\begin{aligned}
+& \|\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})-\bar{\mathbf{s}}\|^2_{\mathbf{Q}^d} = \|\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})-\mathcal{S}(\bar{\mathbf{s}},\mathbf{0})\|^2_{\mathbf{Q}^d} = \\
+= & \mathcal{S}(\mathbf{0},\mathbf{p})^{\mathsf{T}} \mathbf{Q}^d \mathcal{S}(\mathbf{0},\mathbf{p})
+\end{aligned}
+\label{equ:deformation_cost}
+\end{equation}
+%%%%%%%%%%%%%%
+where we used the properties
+$\mathcal{S}(\bar{\mathbf{s}},\mathbf{0})=\bar{\mathbf{s}}+\mathbf{U}\mathbf{0}=\bar{\mathbf{s}}$
+and
+$\mathcal{S}(\bar{\mathbf{s}},\mathbf{p})-\bar{\mathbf{s}}=\bar{\mathbf{s}} + \mathbf{U}\mathbf{p} - \bar{\mathbf{s}} = \mathcal{S}(\mathbf{0},\mathbf{p})$.

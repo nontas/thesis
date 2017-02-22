@@ -1,0 +1,175 @@
+% !TEX root =  ../../../thesis.tex
+\section{Feature-Based Optimization}\label{sec:aam:featureBasedOptimization}
+In this section we describe the combination of the IC algorithm with the
+feature-based appearance of Eq.~\ref{equ:featuresFunction}. The keypoint of this
+combination is that there are two different ways of conducting the composition
+of the features function $\mathcal{F}$ and the warp function $\mathcal{W}$ on an image.
+Given an image $\mathbf{t}$ and the warp parameters $\mathbf{p}$, the warped
+feature-based image $\mathbf{f}$ can be obtained with the two following composition
+directions:
+\begin{itemize}
+\item[$\bullet$] \emph{Features from warped image:}
+\begin{equation}
+\mathbf{f}=\mathcal{F}\left(\mathbf{t}(\mathcal{W}(\mathbf{p}))\right)
+\label{equ:warpThenFeatures}
+\end{equation}
+\item[$\bullet$] \emph{Warping on features image:}
+\begin{equation}
+\mathbf{f}=\mathbf{t}_{\mathcal{F}}(\mathcal{W}(\mathbf{p}))\text{~where~}\mathbf{t}_{\mathcal{F}}=\mathcal{F}(\mathbf{t})
+\label{equ:featuresThenWarp}
+\end{equation}
+\end{itemize}
+The composition order of these two cases is shown in Fig.~\ref{fig:warpFeaturesCases}.
+In the following subsections we present the incorporation of these two functions
+compositions in the IC algorithm and explain why the second one is preferable.
+For simplicity, we use the LK-IC algorithm (Sec.~\ref{subsec:aam:inverseCompositional:LK-IC}) for
+face alignment that does not include appearance variation.
+
+% Composition Directions
+\begin{figure}[!h]
+\centering
+\subfloat[Features from warped image.]{\includegraphics[width=0.8\linewidth]{figures/feature_based_aam/2_CompositionDirections/warpFeatures}
+\label{fig_first_case}}
+\hfil
+\subfloat[Warping on features image.]{\includegraphics[width=0.8\linewidth]{figures/feature_based_aam/2_CompositionDirections/featuresWarp}
+\label{fig_second_case}}
+\caption{The two possible composition directions of the feature extraction function $\mathcal{F}$ and the warp function $\mathcal{W}(\mathbf{p})$.}
+\label{fig:warpFeaturesCases}
+\end{figure}
+%
+
+% Features function and warp function computational complexity
+\subsection{Warp Function Computational Complexity}
+As shown in Sec.~\ref{sec:aam:features:complexity}, the computational cost of
+the feature extraction function $\mathcal{F}(\mathbf{t})$ is
+$\mathcal{O}(L_TD^3)$, where $L_T=HW$ is the resolution of the image
+$\mathbf{t}$. Regarding the warp function, we need to consider that the warping
+of a $D$-channel image, $\mathbf{t}(\mathcal{W}(\mathbf{p}))$, includes the
+three following steps:
+%%%%%%%%%%%%%%%%%
+\begin{enumerate}
+  \item Synthesis of the shape model instance $\mathbf{s}$, generated as in
+  Eq.~\ref{equ:shape_generation} using the weights $\mathbf{p}$,
+  which has a cost of $\mathcal{O}(2n_sn)$.
+
+  \item Computation of the mapping of each pixel in the mean shape
+  $\bar{\mathbf{s}}$ to the synthesized shape instance. This firstly involves
+  the triangulation of the shape instance in $N_{tr}$ number of triangles (same
+  as the number of triangles of the mean shape) using Delaunay
+  triangulation~\cite{lee1980two}. Then, six affine transformation parameters
+  are computed for each triangle based on the coordinates of the corresponding
+  triangles' vertexes. Finally, the transformed location of each point within
+  each triangle is evaluated. Thus, the complexity of this step is
+  $\mathcal{O}(6N_{tr}\frac{m}{N_{tr}})=\mathcal{O}(6m)$.
+
+  \item Copying the values of all channels $D$ for all pixels from the input
+  image to the reference frame $\bar{\mathbf{s}}$ ($\mathcal{O}(Dm)$).
+\end{enumerate}
+%%%%%%%%%%%%%%%
+Consequently, taking into account that $(6+D)m\gg2n_sn$, the overall
+computational complexity of warping a multi-channel image is
+$\mathcal{O}((6+D)m)$.
+
+% Features from warped image
+\subsection{Optimization with Features from Warped Image}
+From Eqs.~\ref{equ:LKICcost}~and~\ref{equ:warpThenFeatures} we get the cost
+function of minimizing
+%%%%%%%%%%%%%%
+\begin{equation}
+  \argmin_{\Delta\mathbf{p}} \left\lVert \mathcal{F}(\mathbf{t}(\mathcal{W}(\mathbf{p}))) - \mathcal{F}(\bar{\mathbf{a}}(\mathcal{W}(\Delta\mathbf{p}))) \right\rVert^2
+\end{equation}
+%%%%%%%%%%%%%%
+with respect to $\Delta\mathbf{p}$. Thus, the first-order Taylor expansion of
+this expression around $\Delta\mathbf{p}=\mathbf{0}$
+is
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathcal{F}(\bar{\mathbf{a}}(\mathcal{W}(\Delta\mathbf{p}))) \approx \mathcal{F}(\bar{\mathbf{a}}) + \frac{\partial\mathcal{F}}{\partial\bar{\mathbf{a}}} \nabla\bar{\mathbf{a}} \left.\frac{\partial\mathcal{W}}{\partial\mathbf{p}}\right|_{\mathbf{p}=\mathbf{0}}\Delta\mathbf{p}
+\end{equation}
+%%%%%%%%%%%%%%
+Since it is not possible to compute
+$\frac{\partial\mathcal{F}}{\partial\bar{\mathbf{a}}}$,
+we make the approximation
+$\frac{\partial\mathcal{F}}{\partial\bar{\mathbf{a}}}\nabla\bar{\mathbf{a}}\approx\nabla\mathcal{F}(\bar{\mathbf{a}})$
+and the linearization becomes
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathcal{F}(\bar{\mathbf{a}}(\mathcal{W}(\Delta\mathbf{p})))\approx\mathcal{F}(\bar{\mathbf{a}})+\nabla\mathcal{F}(\bar{\mathbf{a}})\left.\frac{\partial\mathcal{W}}{\partial\mathbf{p}}\right|_{\mathbf{p}=\mathbf{0}}\Delta\mathbf{p}
+  \label{equ:featureLinearization}
+\end{equation}
+%%%%%%%%%%%%%%
+Consequently, in every IC repetition step, the warping is performed on the intensities
+image ($D=1$) with the current parameters estimate ($\mathcal{O}(7m)$) and is
+followed by the feature extraction ($\mathcal{O}(mD^3)$), ending up to a cost
+of $\mathcal{O}(m(7+D^3))$ per iteration. Hence, by applying $k$ iterations of
+the algorithm and given that $D^3\gg7$, the overall complexity of warping and
+features extraction is
+\begin{equation}
+\mathcal{O}(kmD^3)
+\label{equ:warpFeaturesCost}
+\end{equation}
+Note that this is only a part of the final cost, as the IC algorithm complexity
+also needs to be taken into account. Moreover, in the AAMs case, it is difficult
+to extract window-based features (\eg, HOG, SIFT, LBP) from the mean shape
+template image, as required from the above procedure. This is because, we have
+to pad the warped texture in order to compute features on the boundary, which
+requires extra triangulation points.
+
+% Warping on features image
+\subsection{Optimization with Warping on Features Image}
+\label{sec:aam:featuresThenWarp}
+The combination of Eqs.~\ref{equ:LKICcost}~and~\ref{equ:featuresThenWarp} gives
+the cost function
+%%%%%%%%%%%%%%
+\begin{equation}
+  \argmin_{\Delta\mathbf{p}} \left\lVert \mathbf{t}_{\mathcal{F}}(\mathcal{W}(\mathbf{p})) - \bar{\mathbf{a}}_{\mathcal{F}}(\mathcal{W}(\Delta\mathbf{p})) \right\rVert^2
+\end{equation}
+%%%%%%%%%%%%%%
+where
+$\mathbf{t}_{\mathcal{F}}=\mathcal{F}(\mathbf{t})$ and
+$\bar{\mathbf{a}}_{\mathcal{F}}=\mathcal{F}(\bar{\mathbf{a}})$
+are the multi-channel feature-based representations of the input and the
+template images respectively. The linearization around
+$\Delta\mathbf{p}=\mathbf{0}$ has the same form as in
+Eq.~\ref{equ:featureLinearization} of the previous case. However, in contrast
+with the previous case, the warping is performed on the feature-based image.
+This means that the feature extraction is performed \emph{once} on the input
+image and the resulting multi-channel image is warped during each iteration.
+Hence, the computational complexity of feature extraction and warping is
+$\mathcal{O}((6+D)m)$ per iteration and $\mathcal{O}(k(6+D)m+L_TD^3)$
+overall per image for $k$ iterations, where $L_T$ is the resolution of the input
+image.
+
+The above cost greatly depends on the input image dimensions $L_T$. In order to
+override this dependency, we firstly resize the input image with respect to the
+scaling factor between the face detection bounding box and the mean shape
+resolution. Then, we crop the resized image in a region slightly bigger than
+the bounding box. Thus, the resulting input image has resolution approximately
+equal to the mean shape resolution $m$, which leads to an overall complexity
+of
+%%%%%%%%%%%%%%
+\begin{equation}
+  \mathcal{O}(km(6+D)+mD^3)
+  \label{equ:featuresWarpCost}
+\end{equation}
+%%%%%%%%%%%%%%
+for $k$ iterations. Another reason for resizing the input image is to have
+correspondence on the scales on which the features are extracted, so that they
+describe the same neighborhood.
+
+The computational complexities of Eqs.~\ref{equ:warpFeaturesCost} and
+\ref{equ:featuresWarpCost} are approximately equal for small number of channels
+$D$ (e.g. for ES and IGO). However, this technique of warping the features image
+has much smaller complexity for large values of $D$ (\eg, HOG, SIFT, LBP,
+Gabor). This is because $k(D+6)<D^3$ for large values of $D$, so $km(6+D)$
+can be eliminated in Eq.~\ref{equ:featuresWarpCost}. Consequently, since
+$kmD^3\gg mD$, it is more advantageous to compute the features image once
+and then warp the multi-channel image at each iteration. In the experiments
+(Sec.~\ref{sec:aam:experiments}), we report the timings that prove the above
+conclusion. Finally, we carried out an extensive experiment comparing the two
+methods for face alignment (LK) in
+Sec.~\ref{subsec:aam:faceAlignment:comparison}
+(Fig.~\ref{fig:warpFeaturesFeaturesWarpComparison}).
+The results indicate that warping the multi-channel features image performs
+better, which is an additional reason to choose this composition direction
+apart from the computational complexity.
