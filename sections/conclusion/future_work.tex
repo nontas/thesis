@@ -1,3 +1,61 @@
 % !TEX root =  ../../thesis.tex
 \section{Future Work}
-blah balh balh
+The work proposed in this thesis can be further extended in various manners.
+Specifically, one of the biggest limitations of Deformable Models is that they
+are mostly applied and test on the object of human face, due to the numerous
+annotated publicly available databases. However, the next step is to develop
+generative Deformable Models for both articulated and non-articulated objects
+that achieve state-of-the-art performance without requiring a huge amount of
+training data. There exist very limited generative models that are suitable and
+have been extensively tested on articulated
+objects~\cite{tzimiropoulos2014gauss,antonakos2015active} (please refer to
+Chapter~\ref{ch:aps}). This is because:
+\begin{itemize}
+  \item Articulated objects often have more complex texture space
+  than non-articulated objects (e.g., the variations of the human body texture
+  space are larger than the variations of the human face, due to clothes,
+  severe self occlusions etc.). Hence, linear component analysis techniques may
+  fail to properly describe these textures statistically.
+
+  \item The majority of the employed generative component analysis techniques
+  are based on holistic low-rank assumptions (such as PCA and its linear and
+  non-linear variations). These methods are not able to capture the
+  relationship between parts of articulated objects both in the appearance
+  space, as well as in the deformable shape space.
+\end{itemize}
+These two challenges can be addressed in the following ways:
+\begin{itemize}
+  \item Apply recently developed deep methodologies for feature extraction,
+  which can be trained in an unsupervised manner~\cite{bengio2009learning} or
+  off-the-shelf trained DCNNs~\cite{sermanet2013overfeat}.
+
+  \item Investigate the development of statistical component analysis
+  techniques that combine low-rank and hierarchical/structured principles
+  (e.g., introduce a part constraint PCA in order to encapsulate the
+  dependencies between the object parts in terms of both texture and shape).
+\end{itemize}
+
+Additionally, there is plenty of room to propose novel methodologies for
+training Deformable Models with limited or even no human supervision and
+explore solutions towards the online incremental update of these models with
+new training samples (lifelong learning). This refers to the task of constantly
+updating generic Deformable Models with images coming from the web and
+gradually turning them into instant specific models.
+Chapter~\ref{ch:automatic_training} provides a very solid proof of concept that
+supports the research towards this direction. Everyday thousands of
+images are uploaded on the Internet. Hence, the methodologies should be able to
+constantly incorporate new knowledge in an incremental fashion. To this end, it
+should be investigated how various component analysis techniques (especially
+the ones focused on articulated objects) could be reformulated so as to allow
+incremental learning. Moreover, in order to learn Deformable Models of a
+specific object instance, for example a person-specific body Deformable Model,
+one can safely rely on the fact that these image samples are highly correlated.
+Hence, it is reasonable to assume that the object's appearance will reside in a
+low-rank subspace and incorporate extra low-rank constraints to powerful
+generative frameworks.
+
+Finally, it is really important for the research community to continue
+developing challenging benchmarks and high-quality open-source implementations
+of the various approaches. Given the strong and increasing impact of industrial
+research due to the unlimited resources, open source knowledge is the only way
+in which academic research can keep leading the constantly growing advances.
