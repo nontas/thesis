@@ -1,0 +1,104 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+
+
+\begin{document}
+
+\begin{center}
+Imperial College London \\
+Department of Computing \vspace{1.5cm}\\
+
+Ph.D. Thesis Corrections \vspace{0.3cm}\\
+\textbf{\Large{Robust Statistical Deformable Models}} \vspace{1.5cm}\\
+
+\begin{tabular}{rl}
+Author: & Epameinondas Antonakos\\
+Supervisor: & Dr. Stefanos Zafeiriou\\
+Examiners: & Dr. Stefan Leutenegger, Prof. Lourdes Agapito
+\end{tabular}
+\vspace{0.7cm}
+
+\line(1,0){250}
+\vspace{0.5cm}
+\end{center}
+
+I would like to thank the examiners for the fruitful discussions and constructive feedback on my Ph.D. work. 
+This document summarises the corrections made to the thesis. Each correction is also highlighted in the thesis document.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{General comments}
+\subsubsection*{Comment 1}
+\begin{quote}\emph{``Please be more careful with the use of both “proof” (page 91) and “optimal” (pages 84, 100). “optimal” has to be put into context explaining the cost function and underlying assumptions; and “proof” should only ever be used when there is a formal proof of a theorem.''}\end{quote}
+I removed the use of "proof" in page 91 and made sure that the word is not misused anywhere else. I also fixed all occurrences of the word ``optimal'' (pages 43, 48, 49, 84, 100, 102, 104, 120).
+
+\subsubsection*{Comment 2}
+\begin{quote}\emph{``Please be consistent with “E” and “I” notation for identity matrices.''}\end{quote}
+The symbol $\mathbf{E}$ is now consistently used for denoting an identity matrix. The changes were made in Equations 4.18, 4.21, 4.33, 4.35, 6.3, 6.17, and pages 47, 83, 101. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Chapter 1: Introduction}
+\subsubsection*{Comment 1}
+\begin{quote}\emph{``Please provide some more context around newer trends, specifically 3D generative models as well as deep learning along with some reasoning about why you have decided not to pursue these directions.''}\end{quote}
+TODO TODO TODO TODO
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Chapter 2: Literature Review}
+\subsubsection*{Comment 1}
+\begin{quote}\emph{``Page 18: “methodologies that that employ”: please correct.''}\end{quote}
+Fixed.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Chapter 3: Basic Definitions and Notation}
+\subsubsection*{Comment 1}
+\begin{quote}\emph{``Equation (3.12): Is there a reason for the order of variables to be the inverse of the shape model? If not, please make it consistent.''}\end{quote}
+Fixes. The model notations are now made consistent.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Chapter 4: Feature-based Lucas-Kanade and Active Appearance Models}
+\subsubsection*{Comment 1}
+\begin{quote}\emph{``Please clarify that no image pyramid was used in this approach.''}\end{quote}
+TODO TODO TODO TODO
+
+\subsubsection*{Comment 2}
+\begin{quote}\emph{``Please give some details how you implemented solving the optimisation problem and how this relates to timings.''}\end{quote}
+TODO TODO TODO TODO
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Chapter 6: Automatic Construction of Deformable Models}
+\subsubsection*{Comment 1}
+\begin{quote}\emph{``Figure 6.2: Please clarify that the figure was taken from Stefanos’ paper.''}\end{quote}
+Fixed.
+
+\subsubsection*{Comment 2}
+\begin{quote}\emph{``You claim that the IG features are better separating the PCA enabling the somewhat magical convergence of the automatic construction of the model. In our discussion, however, we found that it works just as well with SIFT. Please clarify, as otherwise the claim is misleading.''}\end{quote}
+TODO TODO TODO TODO
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Chapter 7: Adaptive Cascaded Regression}
+\subsubsection*{Comment 1}
+\begin{quote}\emph{``Page 117: “estimate of the shape parameters pk) that”: remove “)”.''}\end{quote}
+Fixed.
+
+\subsubsection*{Comment 2}
+\begin{quote}\emph{``Section 7.2.3. How do you set the lambdas? Please explain.''}\end{quote}
+TODO TODO TODO TODO
+
+\subsubsection*{Comment 3}
+\begin{quote}\emph{``Why does [157] not appear in the graphs of the evaluation? It seems there is a wrong citation. Please correct.''}\end{quote}
+The citations in the legends where wrong. They are now fixed for Figures 7.5, 7.6 and 7.10.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Conclusion}
+\subsubsection*{Comment 1}
+\begin{quote}\emph{``“with the gradient descent directions from Gauss-Newton optimization”: strictly speaking this is not gradient descent, since Gauss-Newton is a second order method... Please adjust.''}\end{quote}
+Fixed in pages 131 and 136.
+
+\end{document}
