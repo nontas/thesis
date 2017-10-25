@@ -81,7 +81,7 @@ Due to the discriminative nature of this AAM, the ground-truth shapes
 $\left\lbrace\mathbf{s}_{tr}^i\right\rbrace$ need to include as few outliers as
 possible. This is achieved by applying least-squares based Subspace
 Clustering~\cite{lu2012robust} on the final appearance model instances. Assume
-that we have estimated the optimal appearance parameters
+that we have estimated the \textcolor{red}{\st{optimal}} appearance parameters
 $\left\lbrace\mathbf{c}^i\right\rbrace$ by fitting the generative AAM to the
 discriminative database's training images
 $\left\lbrace \mathbf{t}^i\right\rbrace,~i=1,\ldots,N$. This set of parameters
@@ -93,7 +93,7 @@ appearance vectors to a single matrix
   \mathbf{A} = \left[ {\mathbf{a}_{\mathbf{c}^1}}^{\mathsf{T}}, {\mathbf{a}_{\mathbf{c}^2}}^{\mathsf{T}}, \ldots, {\mathbf{a}_{\mathbf{c}^N}}^{\mathsf{T}} \right]^{\mathsf{T}}
 \end{equation}
 %%%%%%%%%%%%%%
-we compute the optimal block-diagonal affinity matrix (graph) by solving the
+we compute the \textcolor{red}{\st{optimal}} block-diagonal affinity matrix (graph) by solving the
 least-squares regression problem
 %%%%%%%%%%%%%%
 \begin{equation}
@@ -104,9 +104,10 @@ where $\|\cdot\|_F$ denotes the Frobenius norm. This problem has a closed form
 solution
 %%%%%%%%%%%%%%
 \begin{equation}
-  \mathbf{Z} = \left( \mathbf{A}^{\mathsf{T}}\mathbf{A} + \mu \mathbf{I}_{eye} \right)^{-1} \mathbf{A}^{\mathsf{T}}\mathbf{A}
+  \mathbf{Z} = \left( \mathbf{A}^{\mathsf{T}}\mathbf{A} + \mu \textcolor{red}{\mathbf{E}} \right)^{-1} \mathbf{A}^{\mathsf{T}}\mathbf{A}
 \end{equation}
 %%%%%%%%%%%%%%
+\textcolor{red}{where $\mathbf{E}$ denotes the identity matrix}.
 This affinity matrix provides a measure of the similarity between each pair of
 appearance vectors. Then we apply Normalized Spectral Clustering (Normalized
 Cuts)~\cite{shi2000normalized} on
