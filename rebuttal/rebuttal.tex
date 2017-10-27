@@ -1,5 +1,5 @@
 \documentclass[12pt]{article}
-\usepackage[margin=1in]{geometry}
+\usepackage[margin=1.05in]{geometry}
 
 
 \begin{document}
@@ -22,8 +22,9 @@ Examiners: & Dr. Stefan Leutenegger, Prof. Lourdes Agapito
 \vspace{0.5cm}
 \end{center}
 
-I would like to thank the examiners for the fruitful discussions and constructive feedback on my Ph.D. work. 
-This document summarises the corrections made to the thesis. Each correction is also highlighted in the thesis document.
+I would like to thank the examiners for the fruitful discussions and constructive feedback on my Ph.D. work.
+This document summarises the corrections made to the thesis. Each correction is also highlighted in the thesis document
+using red color.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -34,7 +35,7 @@ I removed the use of "proof" in page 91 and made sure that the word is not misus
 
 \subsubsection*{Comment 2}
 \begin{quote}\emph{``Please be consistent with “E” and “I” notation for identity matrices.''}\end{quote}
-The symbol $\mathbf{E}$ is now consistently used for denoting an identity matrix. The changes were made in Equations 4.18, 4.21, 4.33, 4.35, 6.3, 6.17, and pages 47, 83, 101. 
+The symbol $\mathbf{E}$ is now consistently used for denoting an identity matrix. The changes were made in Equations 4.18, 4.21, 4.33, 4.35, 6.3, 6.17, and pages 47, 83, 101.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -88,7 +89,22 @@ Fixed.
 
 \subsubsection*{Comment 2}
 \begin{quote}\emph{``Section 7.2.3. How do you set the lambdas? Please explain.''}\end{quote}
-TODO TODO TODO TODO
+This was very briefly explained in the "Implementation Details" paragraph of the experiments Section 7.3 (page 124).
+I created a new paragraph in page 122 that explains how these parameters are fine-tuned, so that
+it is more clear and easier to find. Specifically, the paragraph is the one below:
+
+``$\lambda=\left[\lambda_1,\lambda_2,\ldots,\lambda_K\right]$ is a set of weights that
+control the linear combination between the regression-based descent directions and
+the Gauss-Newton descent directions. They are treated as a set of hyperparameters
+that are fine-tuned prior to fitting. Intuitively, given the properties of
+regression and Gauss-Newton descent directions explained above and shown in Fig.~7.1,
+we expect the regression-based descent directions to dominate the optimization on
+the first few iterations, as they are able to move towards the correct direction
+with steps of large magnitude. Then, the Gauss-Newton descent steps are necessary
+in order to converge to an accurate local minimum.
+The hyperparameters $\lambda_k$ are fine-tuned by running extensive cross-validation
+experiments that perform grid search using the mean point-to-point error
+normalized with the interocular distance as evaluation criterion.''
 
 \subsubsection*{Comment 3}
 \begin{quote}\emph{``Why does [157] not appear in the graphs of the evaluation? It seems there is a wrong citation. Please correct.''}\end{quote}
@@ -99,6 +115,6 @@ The citations in the legends where wrong. They are now fixed for Figures 7.5, 7.
 \section*{Conclusion}
 \subsubsection*{Comment 1}
 \begin{quote}\emph{``“with the gradient descent directions from Gauss-Newton optimization”: strictly speaking this is not gradient descent, since Gauss-Newton is a second order method... Please adjust.''}\end{quote}
-Fixed in pages 131 and 136.
+Fixed in pages 115, 120, 121, 131 and 136.
 
 \end{document}
