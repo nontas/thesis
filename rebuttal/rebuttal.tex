@@ -1,6 +1,7 @@
 \documentclass[12pt]{article}
 \usepackage[margin=1.05in]{geometry}
-
+\usepackage{color}
+\usepackage{hyperref}
 
 \begin{document}
 
@@ -22,27 +23,39 @@ Examiners: & Dr. Stefan Leutenegger, Prof. Lourdes Agapito
 \vspace{0.5cm}
 \end{center}
 
-I would like to thank the examiners for the fruitful discussions and constructive feedback on my Ph.D. work.
-This document summarises the corrections made to the thesis. Each correction is also highlighted in the thesis document
-using red color.
+I would like to thank the examiners for the fruitful discussion and
+constructive feedback on my Ph.D. work. This document summarises the
+corrections made to the thesis. Each correction is also highlighted in the
+thesis document using \textcolor{red}{red colour}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{General comments}
 \subsubsection*{Comment 1}
 \begin{quote}\emph{``Please be more careful with the use of both “proof” (page 91) and “optimal” (pages 84, 100). “optimal” has to be put into context explaining the cost function and underlying assumptions; and “proof” should only ever be used when there is a formal proof of a theorem.''}\end{quote}
-I removed the use of "proof" in page 91 and made sure that the word is not misused anywhere else. I also fixed all occurrences of the word ``optimal'' (pages 43, 48, 49, 84, 100, 102, 104, 120).
+I removed the use of ``proof'' in page 93 (91 in the old version of the thesis)
+and made sure that the word is not misused anywhere else. I also fixed all
+occurrences of the word ``optimal'' (pages 45, 50, 51, 86, 102, 104, 106, 122).
 
 \subsubsection*{Comment 2}
-\begin{quote}\emph{``Please be consistent with “E” and “I” notation for identity matrices.''}\end{quote}
-The symbol $\mathbf{E}$ is now consistently used for denoting an identity matrix. The changes were made in Equations 4.18, 4.21, 4.33, 4.35, 6.3, 6.17, and pages 47, 83, 101.
+\begin{quote}\emph{``Please be consistent with \textbf{E} and \textbf{I} notation for identity matrices.''}\end{quote}
+The symbol $\mathbf{E}$ is now consistently used for denoting an identity matrix. The changes were made in Equations 4.18, 4.21, 4.33, 4.35, 6.3, 6.17, and pages 49, 85, 102, 103.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{Chapter 1: Introduction}
 \subsubsection*{Comment 1}
 \begin{quote}\emph{``Please provide some more context around newer trends, specifically 3D generative models as well as deep learning along with some reasoning about why you have decided not to pursue these directions.''}\end{quote}
-TODO TODO TODO TODO
+I added a new paragraph at the end of Section 1.1 (pages 4, 5). The paragraph is the following:
+
+``As explained above, the work presented in this Ph.D. thesis aims to solve the problem of landmark localization by exploring generative and discriminative 2D Deformable Models. Nevertheless, there has been significant research effort on directions that approach the problem in different ways. Specifically, these are the most important current trends and the reasons why they are not within the scope of this thesis:
+%%%%%%%%%%%%%%%
+\begin{itemize}
+  \item 3D facial shape estimation from monocular images is the main  alternative to 2D Deformable Models. The predominant lines of research  include 3D Morphable Model  (3DMM)~\cite{blanz1999morphable,blanz2003face,booth20173d,booth2017largescale,booth20163d,paysan20093d} and Shape-from-Shading  (SfS)~\cite{barron2015shape,durou2008numerical,kemelmacher2013internet,snape2014kernel,trigeorgis2017face}. 3DMM is a generative statistical model of the  3D shape and texture of a deformable object. The biggest advantage of 3DMMs  is the fact that dense 3D shape modeling provides a more natural and accurate representation of the human face that overpasses the limitations and ambiguities of 2D sparse landmarks (\emph{e.g.}, the semantic meaning of the 2D  landmarks around the jaw is ambiguous and inconsistent over the head pose  variation~\cite{sagonas2016faces}). However, capturing  3D facial data is a  tedious task that also requires specialised acquisition devices that cannot  operate under unconstrained conditions. As a result, there only exist small  databases with limited variance that capture a few hundred faces under  laboratory conditions~\cite{paysan20093d,blanz1999morphable} and are not  suitable neither for ``in-the-wild'' applications, nor for training  discriminative methodologies. These are the main reasons why 3D Deformable Models are not within the scope of this thesis. Nevertheless, during the last year, 3D Deformable Models have re-attracted increased interest thanks to the development of the first powerful 3D models trained on thousands of subjects~\cite{booth20163d,booth2017largescale}, as well as the organization of the first challenges on the task~\cite{jeni2016first}.
+
+  \item Deep Learning, and more importantly, Convolutional Neural Networks (CNNs) have become the most popular trend in Computer Vision and have significantly contributed in improving the performance of various tasks such as image classification~\cite{krizhevsky2012imagenet,szegedy2015going,taigman2014deepface,he2016deep}, generic object detection~\cite{girshick2014rich,ren2015faster}, semantic segmentation~\cite{girshick2014rich,long2015fully,chen2016deeplab,guler2017densereg} and instance segmentation~\cite{pinheiro2015learning,he2017mask}. The progress witnessed over the last decade is highly related to the spatial accuracy that CNNs were able to achieve over time, starting from boxes, moving to coarse instance regions until reaching accurate pixel-level labelling. As a result, it was not until recently that CNNs were able to perform tasks with accurate spatial localization, such as body pose estimation~\cite{tompson2014joint,yang2016end} and facial landmark localization~\cite{rivera2012learning,sun2013deep,zhang2016learning,trigeorgis2016mnemonic,kowalski2017deep,guler2017densereg}. However, despite the fact that facial databases include reasonably large numbers of ``in-the-wild'' annotated images for the generative or discriminative methodologies of this thesis, they are not large enough in order to train CNNs. As a matter of fact, LFPW~\cite{belhumeur2011localizing} and HELEN~\cite{le2012interactive}, which are the largest facial databases annotated with 2D landmark points, consist of $1035$ and $2330$ images, respectively. This is orders of magnitude less than the size of ImageNet~\cite{deng2009imagenet} ($\sim 15M$), MegaFace~\cite{kemelmacher2016megaface} ($1M$), WIDER~\cite{yang2016wider} ($\sim 400k$) or Microsoft COCO~\cite{lin2014microsoft} ($330k$) that are commonly used for other tasks. Finally, it is worth mentioning that the research community has been actively attempting to increase the size of annotated data during the last few months~\cite{zafeiriou2017menpo}, which will benefit Deep Learning approaches and potentially further improve face alignment accuracy.
+\end{itemize}
+''
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -56,7 +69,7 @@ Fixed.
 \section*{Chapter 3: Basic Definitions and Notation}
 \subsubsection*{Comment 1}
 \begin{quote}\emph{``Equation (3.12): Is there a reason for the order of variables to be the inverse of the shape model? If not, please make it consistent.''}\end{quote}
-Fixes. The model notations are now made consistent.
+Fixed. The model notations are now consistent.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -89,26 +102,30 @@ Fixed.
 
 \subsubsection*{Comment 2}
 \begin{quote}\emph{``Section 7.2.3. How do you set the lambdas? Please explain.''}\end{quote}
-This was very briefly explained in the "Implementation Details" paragraph of the experiments Section 7.3 (page 124).
-I created a new paragraph in page 122 that explains how these parameters are fine-tuned, so that
-it is more clear and easier to find. Specifically, the paragraph is the one below:
+This was very briefly explained in the "Implementation Details" paragraph of
+the experiments Section 7.3 (page 124). I removed it from there and I created a
+new paragraph in pages 122, 123 that explains how these parameters are
+fine-tuned, so that it is more clear and easier to find. Specifically, the
+paragraph is the one below:
 
-``$\lambda=\left[\lambda_1,\lambda_2,\ldots,\lambda_K\right]$ is a set of weights that
-control the linear combination between the regression-based descent directions and
-the Gauss-Newton descent directions. They are treated as a set of hyperparameters
-that are fine-tuned prior to fitting. Intuitively, given the properties of
-regression and Gauss-Newton descent directions explained above and shown in Fig.~7.1,
-we expect the regression-based descent directions to dominate the optimization on
-the first few iterations, as they are able to move towards the correct direction
-with steps of large magnitude. Then, the Gauss-Newton descent steps are necessary
-in order to converge to an accurate local minimum.
-The hyperparameters $\lambda_k$ are fine-tuned by running extensive cross-validation
-experiments that perform grid search using the mean point-to-point error
-normalized with the interocular distance as evaluation criterion.''
+``$\lambda=\left[\lambda_1,\lambda_2,\ldots,\lambda_K\right]$ is a set of
+weights that control the linear combination between the regression-based
+descent directions and the Gauss-Newton descent directions. They are treated as
+a set of hyperparameters that are fine-tuned prior to fitting. Intuitively,
+given the properties of regression and Gauss-Newton descent directions
+explained above and shown in Fig.~7.1, we expect the regression-based descent
+directions to dominate the optimization on the first few iterations, as they
+are able to move towards the correct direction with steps of large magnitude.
+Then, the Gauss-Newton descent steps are necessary in order to converge to an
+accurate local minimum. The hyperparameters $\lambda_k$ are fine-tuned by
+running extensive cross-validation experiments that perform grid search using
+the mean point-to-point error normalized with the interocular distance as
+evaluation criterion.''
 
 \subsubsection*{Comment 3}
 \begin{quote}\emph{``Why does [157] not appear in the graphs of the evaluation? It seems there is a wrong citation. Please correct.''}\end{quote}
-The citations in the legends where wrong. They are now fixed for Figures 7.5, 7.6 and 7.10.
+The citations in the legends where wrong. They are now fixed for Figures 7.5,
+7.6 and 7.10.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -116,5 +133,8 @@ The citations in the legends where wrong. They are now fixed for Figures 7.5, 7.
 \subsubsection*{Comment 1}
 \begin{quote}\emph{``“with the gradient descent directions from Gauss-Newton optimization”: strictly speaking this is not gradient descent, since Gauss-Newton is a second order method... Please adjust.''}\end{quote}
 Fixed in pages 115, 120, 121, 131 and 136.
+
+\bibliographystyle{plain}
+\bibliography{bibliography}
 
 \end{document}
