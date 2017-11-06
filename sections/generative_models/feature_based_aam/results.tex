@@ -8,6 +8,19 @@ framework. We employ all the dense features described in
 Sec.~\ref{sec:aam:features} with the parameters of
 Tab.~\ref{tab:featuresParameters}.
 
+\textcolor{red}{Note that commonly LK and AAMs fitting is performed using an
+image pyramid with progressively increasing the number of shape and appearance
+parameters as the image resolution
+increases~\cite{baker2004lucas,matthews2004active,papandreou2008adaptive,tzimiropoulos2011robust}.
+However, in the following experiments of this chapter, the image pyramid is not
+employed in order to facilitate and simplify the comparisons. Using multiple
+fitting scales would make it difficult to derive any conclusions about the
+various features and approaches, such as the representation power, number of
+appearance and shape eigenvectors, convergence rate, etc. Nevertheless, a
+multi-level pyramid fitting framework is employed in the rest of this thesis,
+as also explained in individual Chapters~\ref{ch:aps}, \ref{ch:automatic_training}
+and \ref{ch:acr}.}
+
 % Yale B examples
 \begin{figure}[!h]
 \centering
@@ -319,13 +332,24 @@ than the unoptimized warping of the 36 channels
 of Tab.~\ref{tab:times} with Fig.~\ref{fig:feature_aam:convergence} suggests
 that even though high-dimensional features like HOG and SIFT converge really
 fast, their computational cost is quite similar to features with less channels
-that require multiple iterations until convergence. Note that it is not in the
+that require multiple iterations until convergence.
+
+\textcolor{red}{The AAM fitting used in these experiments is implemented in
+Matlab using the Moore-Penrose pseudoinverse, which, despite the fact that it
+ensures robustness, it is computationally expensive. Additionally, as mentioned
+before, the fitting is not performed using an image pyramid. These two factors
+make the fitting procedure reported in Tab.~\ref{tab:times} slower than expected.
+However, note that the aim of these experiments is to make a fair comparison of
+the computational complexity between the different feature types. It is not in the
 scope of this work to provide an optimized implementation of AAMs or features.
 Faster AAM optimization can be achieved with the framework proposed
-in~\cite{tzimiropoulos2013optimization} and one could also use GPU or parallel
-programming to achieve much faster performance and eliminate the cost difference
+in~\cite{papandreou2008adaptive,tzimiropoulos2013optimization}. One could also use GPU or parallel
+programming to achieve faster performance and eliminate the cost difference
 between various features and also between the two composition scenarios of
-$\mathcal{F}$ and $\mathcal{W}$.
+$\mathcal{F}$ and $\mathcal{W}$. Finally, by applying a multi-scale fitting using
+an image pyramid greatly speeds up the fitting procedure, since convergence is
+achieved in less iterations, as shown in Chapter~\ref{ch:aps} (Sec.~\ref{sec:aps:exp})
+and Chapter~\ref{ch:acr}.}
 
 % Number of Appearance Components
 \begin{figure}[!h]
@@ -526,7 +550,7 @@ The training images are randomly selected from the 2811 images of LFPW and Helen
 trainsets and the evaluation is applied on Helen testing set. The graph shows
 that SDM keeps improving as the number of training images increases whilst the
 SIFT AAMs performance remains almost the same. Finally,
-Fig.~\ref{fig:afw-helen-images} shows some indicative fitting results using all 
+Fig.~\ref{fig:afw-helen-images} shows some indicative fitting results using all
 the features employed in this work.
 
 The results indicate that HOG-AIC and SIFT-AIC significantly outperform DRMF and
