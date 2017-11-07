@@ -120,21 +120,37 @@ Fixed.
 
 \subsubsection*{Comment 2}
 \begin{quote}\emph{``You claim that the IGO features are better separating the PCA enabling the somewhat magical convergence of the automatic construction of the model. In our discussion, however, we found that it works just as well with SIFT. Please clarify, as otherwise the claim is misleading.''}\end{quote}
-IGO features have been shown to suppress outliers at the very last components
-keeping the principal components clean~\cite{tzimiropoulos2011robust,tzimiropoulos2012subspace}.
-This is what it is also explained in Sec.~6.2.1 and Fig.~6.2.
+Learning a PCA subspace using IGO features has been shown to suppress outliers
+at the very last components and keep the principal components
+clean~\cite{tzimiropoulos2012subspace,tzimiropoulos2011robust}. This is what it
+is also briefly explained in Sec.~6.2.1 and Fig.~6.2, which summarize the findings of
+the work in~\cite{tzimiropoulos2012subspace}.
 
 My point during our discussion was that other powerful features would work as well
-(e.g. HOG or SIFT) because of the statistics of the data that we employ for the
-experiments shown in the chapter. Specifically, the employed datasets (LFPW and HELEN)
-do not include many faces with extreme poses lots of nearly frontal images that 
+(e.g. HOG or SIFT) because of \emph{the statistics of the specific data that we employ for the
+experiments shown in the chapter}. Specifically, the facial databases that we use
+are LFPW~\cite{belhumeur2011localizing} and HELEN~\cite{le2012interactive}.
+Despite the fact that these databases contain images captured under in-the-wild conditions with
+large variance in the appearance, the majority of the images have nearly frontal
+faces and in general there are not many too extreme poses. This can be observed in
+the exemplar images of Fig.~6.8. Additionally, the method in
+this chapter is based on the output of a face detector with very small (almost zero)
+false positive rate, which is relatively easy to achieve given the recent advances on
+the domain of face detection~\cite{fddbTech}. These two factors greatly reduce the
+within-class and out-of-class outliers in the data that we use for our experiments.
+Thus, this makes the data of the task ``easier'' to deal with, since by cropping
+the least significant components of the learned HOG or SIFT subspace would result in
+a clean basis. In case the data was more noisy, then IGO features would be the
+only option that would actually work well, since it would be possible to isolate all
+the outliers. However given the fact that the data in our specific scenario are cleaner,
+then other powerful features (e.g. the ones shown in Chapter 4) work as well.
 
-The method in this chapter assumes that we
-apply a face detector with a very small (almost zero) false positive rate, which
-is relatively easy to achieve for the employed datasets (LFPW, HELEN). Additionally, the employed
-databases do not include lots of extreme poses and most of the images are nearly
-frontal. This means that the data on which the method is applied are relatively clean,
-which does not
+I have not added any discussion about this in the revised thesis, because I believe that
+the aforementioned argument was mostly an outcome of our discussion and a comment
+about the statistics of the employed datasets. I think that adding more discussion
+about that in the thesis would be confusing and slightly misleading. However,
+in case the examiners still believe that more clarification should be added in the thesis, then
+I will move forward with it.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -146,8 +162,8 @@ Fixed.
 \subsubsection*{Comment 2}
 \begin{quote}\emph{``Section 7.2.3. How do you set the lambdas? Please explain.''}\end{quote}
 This was very briefly explained in the "Implementation Details" paragraph of
-the experiments Section 7.3 (page 124). I removed it from there and I created a
-new paragraph in pages 122, 123 that explains how these parameters are
+the experiments Section 7.3 (page 126). I removed it from there and I created a
+new paragraph in pages 124, 125 that explains how these parameters are
 fine-tuned, so that it is more clear and easier to find. Specifically, the
 paragraph is the one below:
 
@@ -167,15 +183,15 @@ evaluation criterion.''
 
 \subsubsection*{Comment 3}
 \begin{quote}\emph{``Why does [157] not appear in the graphs of the evaluation? It seems there is a wrong citation. Please correct.''}\end{quote}
-The citations in the legends where wrong. They are now fixed for Figures 7.5,
-7.6 and 7.10.
+The citations in the legends were wrong. They are now fixed for Figures 7.5,
+7.6 and 7.10. Note that the citation numbers changed since the previous revision, since more items have been added in the bibliography.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{Conclusion}
 \subsubsection*{Comment 1}
 \begin{quote}\emph{``“with the gradient descent directions from Gauss-Newton optimization”: strictly speaking this is not gradient descent, since Gauss-Newton is a second order method... Please adjust.''}\end{quote}
-Fixed in pages 115, 120, 121, 131 and 136.
+Fixed in pages 117, 122, 123, 132 and 138.
 
 \bibliographystyle{plain}
 \bibliography{bibliography}
