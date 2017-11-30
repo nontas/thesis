@@ -8,7 +8,7 @@ framework. We employ all the dense features described in
 Sec.~\ref{sec:aam:features} with the parameters of
 Tab.~\ref{tab:featuresParameters}.
 
-\textcolor{red}{Note that commonly LK and AAMs fitting is performed using an
+Note that commonly LK and AAMs fitting is performed using an
 image pyramid with progressively increasing the number of shape and appearance
 parameters as the image resolution
 increases~\cite{baker2004lucas,matthews2004active,papandreou2008adaptive,tzimiropoulos2011robust}.
@@ -19,7 +19,7 @@ various features and approaches, such as the representation power, number of
 appearance and shape eigenvectors, convergence rate, etc. Nevertheless, a
 multi-level pyramid fitting framework is employed in the rest of this thesis,
 as also explained in individual Chapters~\ref{ch:aps}, \ref{ch:automatic_training}
-and \ref{ch:acr}.}
+and \ref{ch:acr}.
 
 % Yale B examples
 \begin{figure}[!h]
@@ -334,7 +334,7 @@ that even though high-dimensional features like HOG and SIFT converge really
 fast, their computational cost is quite similar to features with less channels
 that require multiple iterations until convergence.
 
-\textcolor{red}{The AAM fitting used in these experiments is implemented in
+The AAM fitting used in these experiments is implemented in
 Matlab using the Moore-Penrose pseudoinverse, which, despite the fact that it
 ensures robustness, it is computationally expensive. Additionally, as mentioned
 before, the fitting is not performed using an image pyramid. These two factors
@@ -349,7 +349,7 @@ between various features and also between the two composition scenarios of
 $\mathcal{F}$ and $\mathcal{W}$. Finally, by applying a multi-scale fitting using
 an image pyramid greatly speeds up the fitting procedure, since convergence is
 achieved in less iterations, as shown in Chapter~\ref{ch:aps} (Sec.~\ref{sec:aps:exp})
-and Chapter~\ref{ch:acr}.}
+and Chapter~\ref{ch:acr}.
 
 % Number of Appearance Components
 \begin{figure}[!h]

@@ -7,8 +7,7 @@ Alignment~\cite{baker2004lucas,matthews2004active}. In this section, we firstly
 refer to the problem of LK (\ref{subsec:aam:inverseCompositional:LK}) and then
 elaborate on holistic AAMs
 (\ref{subsec:aam:inverseCompositional:inverseCompositionalAAMs}).
-In both cases,
-\textcolor{red}{\st{the Gauss-Newton image alignment aims to find the optimal parameters values of} Gauss-Newton aims to minimize an $\ell_2$ norm with respect to a parametric motion model, as defined in Chapter~\ref{ch:notation}, Sec.~\ref{sec:notation_holistic}.}
+In both cases, Gauss-Newton aims to minimize an $\ell_2$ norm with respect to a parametric motion model, as defined in Chapter~\ref{ch:notation}, Sec.~\ref{sec:notation_holistic}.
 The motion model utilized in this work is
 Piecewise Affine Warp (PWA)~\cite{cootes2004statistical,baker2004lucas},
 denoted as $\mathcal{W}(\mathbf{p})$, where $\mathbf{p}$ is the $n_s$ number of
@@ -202,12 +201,12 @@ shape and appearance by solving Eq.~\ref{equ:minimizationCostForAAMs} in a
 subspace orthogonal to the appearance variation. This is achieved by
 ``projecting-out'' the appearance variation, thus working on the orthogonal
 complement of the appearance subspace
-$\hat{\mathbf{U}}_a=\textcolor{red}{\mathbf{E}}-\mathbf{U}_a{\mathbf{U}_a}^{\mathsf{T}}$. The
+$\hat{\mathbf{U}}_a=\mathbf{E}-\mathbf{U}_a{\mathbf{U}_a}^{\mathsf{T}}$. The
 cost function of Eq.~\ref{equ:minimizationCostForAAMs} takes the form
 %%%%%%%%%%%%%%
 \begin{equation}
   \argmin_{\Delta\mathbf{p}} \left\lVert \mathbf{t}(\mathcal{W}(\mathbf{p})) - \bar{\mathbf{a}}(\mathcal{W}(\Delta\mathbf{p}))\right\rVert^2_{
-  \textcolor{red}{\mathbf{E}}-\mathbf{U}_a\mathbf{U}_a^{\mathsf{T}}}
+  \mathbf{E}-\mathbf{U}_a\mathbf{U}_a^{\mathsf{T}}}
   \label{equ:POICcostFunction}
 \end{equation}
 %%%%%%%%%%%%%%
@@ -227,7 +226,7 @@ The incremental update of the warp parameters is computed as
 where
 %%%%%%%%%%%%%%
 \begin{equation}
-  \mathbf{J}_{POIC} = (\textcolor{red}{\mathbf{E}} - \mathbf{U}_a\mathbf{U}_a^{\mathsf{T}}) \mathbf{J}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}}
+  \mathbf{J}_{POIC} = (\mathbf{E} - \mathbf{U}_a\mathbf{U}_a^{\mathsf{T}}) \mathbf{J}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}}
 \end{equation}
 %%%%%%%%%%%%%%
 and
@@ -332,13 +331,13 @@ The Alternating IC (AIC) algorithm, proposed
 in~\cite{papandreou2008adaptive,tzimiropoulos2013optimization}, instead of
 minimizing the cost function simultaneously for both shape and appearance as in
 the SIC algorithm, it solves two separate minimization problems, one for the
-shape and one for the appearance \textcolor{red}{\st{optimal}} parameters, in an alternating fashion.
+shape and one for the appearance parameters, in an alternating fashion.
 That is
 %%%%%%%%%%%%%%
 \begin{equation}
   \left\lbrace
   \begin{aligned}
-  & \argmin_{\Delta\mathbf{p}} \left\lVert \mathbf{t}(\mathcal{W}(\mathbf{p})) - \mathbf{a}_{\mathbf{c}}(\mathcal{W}(\Delta\mathbf{p})) \right\rVert^2_{\textcolor{red}{\mathbf{E}}-\mathbf{U}_a\mathbf{U}_a^{\mathsf{T}}} \\
+  & \argmin_{\Delta\mathbf{p}} \left\lVert \mathbf{t}(\mathcal{W}(\mathbf{p})) - \mathbf{a}_{\mathbf{c}}(\mathcal{W}(\Delta\mathbf{p})) \right\rVert^2_{\mathbf{E}-\mathbf{U}_a\mathbf{U}_a^{\mathsf{T}}} \\
   & \argmin_{\Delta\mathbf{c}} \left\lVert \mathbf{t}(\mathcal{W}(\mathbf{p})) - \mathbf{a}_{\mathbf{c}  + \Delta\mathbf{c}}(\mathcal{W}(\Delta\mathbf{p}))\right\rVert^2
   \label{equ:AICcostFunction}
   \end{aligned}
@@ -361,7 +360,7 @@ function as
 where
 %%%%%%%%%%%%%%
 \begin{equation}
-  \mathbf{J}_{AIC} = (\textcolor{red}{\mathbf{E}}-\mathbf{U}_a\mathbf{U}_a^{\mathsf{T}}) \left[ \mathbf{J}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}} + \sum_{i=1}^{n_a} c_i \mathbf{J}_{\mathbf{u}_i}|_{\mathbf{p}=\mathbf{0}}\right]
+  \mathbf{J}_{AIC} = (\mathbf{E}-\mathbf{U}_a\mathbf{U}_a^{\mathsf{T}}) \left[ \mathbf{J}_{\bar{\mathbf{a}}}|_{\mathbf{p}=\mathbf{0}} + \sum_{i=1}^{n_a} c_i \mathbf{J}_{\mathbf{u}_i}|_{\mathbf{p}=\mathbf{0}}\right]
 \end{equation}
 %%%%%%%%%%%%%%
 and
@@ -371,7 +370,7 @@ and
 \end{equation}
 %%%%%%%%%%%%%%
 Then, given the current estimate of the motion parameters $\mathbf{p}$,
-AIC computes the \textcolor{red}{\st{optimal}} appearance parameters as the least-squares solution of
+AIC computes the appearance parameters as the least-squares solution of
 the second cost function of Eq.~\ref{equ:AICcostFunction}, thus
 %%%%%%%%%%%%%%
 \begin{equation}

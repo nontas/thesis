@@ -32,7 +32,7 @@ instances using Eq.~\ref{equ:appearance_generation}.
   \caption{Robust kernel. Having a face dataset with 20\% of the images replaced by the baboon, the top and bottom rows show
   4 principal components of the PCA on intensities and normalized gradients respectively. Note that contrary to
   the normalized gradients subspace where the baboon is isolated, most intensities eigentextures are corrupted with the baboon.
-  \textcolor{red}{\emph{The figure is taken from~\cite{tzimiropoulos2012subspace}.}}}
+  \emph{The figure is taken from~\cite{tzimiropoulos2012subspace}.}}
   \label{fig:baboon}
 \end{figure}
 %
@@ -58,7 +58,7 @@ manages to remove such outliers from the appearance subspace.
 
 For the automatic construction of the generative AAM, we formulate an iterative
 optimization problem that aims to automatically construct
-\textcolor{red}{\st{an optimal} a} generative
+a generative
 appearance model that minimizes the mean AAM fitting $\ell_2^2$ norm error over
 all given images. Specifically, given a set of $N$ training images
 $\left\lbrace\mathbf{t}^i\right\rbrace,~i=1,\ldots,N$ and a statistical shape
@@ -69,17 +69,17 @@ appearance model by iteratively solving
 \begin{aligned}
 & \argmin_{\bar{\mathbf{a}},\mathbf{U}_a,\mathbf{p}^i,\mathbf{c}^i} & & \frac{1}{N}\sum_{i=1}^N\left\|\mathbf{a}^i(\mathbf{p}^i)-\bar{\mathbf{a}}-\mathbf{U}_a\mathbf{c}^i\right\|^2\\
 &\text{subject to} & & \mathbf{U}_a^{\mathsf{T}}\mathbf{U}_a=
-\textcolor{red}{\mathbf{E}}
+\mathbf{E}
 \end{aligned}
 \label{equ:problem}
 \end{equation}
 %%%%%%%%%%%%%%
-in order to find the \textcolor{red}{\st{optimal}} appearance subspace $\mathbf{U}_a$ and mean vector
+in order to find the appearance subspace $\mathbf{U}_a$ and mean vector
 $\bar{\mathbf{a}}$ that minimize the mean $\ell_2^2$ norm
 of the application of AAM fitting ($\mathbf{p}^i$, $\mathbf{c}^i$) over all
 images. $\mathbf{a}^i(\mathbf{p}^i)$ is the warped feature representation of
 the training image $\mathbf{t}^i$ and
-\textcolor{red}{$\mathbf{E}$}
+$\mathbf{E}$
 denotes the identity
 matrix. The explanation of this optimization procedure is visualized in
 Fig.~\ref{fig:automaticGenerative}. In brief, the algorithm iteratively trains
@@ -107,7 +107,7 @@ $\{\mathbf{p}^i,\mathbf{c}^i\}$ for each image $i=1,\ldots,N$. From
 the shape parameters estimate we extract the warped feature-based image vectors
 $\{\mathbf{a}^i(\mathbf{p}^i)\}$ on which we train a new PCA appearance model
 $\{\bar{\mathbf{a}},\mathbf{U}_a\}$. The updated subspace is orthogonal, thus
-$\mathbf{U}_a^{\mathsf{T}}\mathbf{U}_a=\textcolor{red}{\mathbf{E}}$. In this work, we
+$\mathbf{U}_a^{\mathsf{T}}\mathbf{U}_a=\mathbf{E}$. In this work, we
 keep 150 eigenvectors per iteration.
 
 \textbf{(b) Fix $\{\bar{\mathbf{a}},\mathbf{U}_a\}$ and minimize with respect
@@ -151,7 +151,7 @@ for the shape and appearance parameters.
 We instead perform IC, by optimizing separately for shape and appearance
 parameters in an alternating mode, as proposed in
 Sec.~\ref{sec:aam:featureBasedOptimization}. At each iteration, we have a fixed
-estimate of $\mathbf{p}^i$ and compute the \textcolor{red}{\st{optimal}} appearance parameters as the
+estimate of $\mathbf{p}^i$ and compute the appearance parameters as the
 least-squares solution
 %%%%%%%%%%%%%%
 \begin{equation}

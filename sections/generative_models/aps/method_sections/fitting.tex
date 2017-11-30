@@ -241,17 +241,17 @@ covariance matrix
 ($\boldsymbol{\Sigma}^a=\mathbf{W}\mathbf{D}\mathbf{W}^{\mathsf{T}}$), the POIC
 optimization of an AAM can be derived from the presented inverse algorithm by
 using as precision matrix the complement of the texture subspace, \ie,
-$\mathbf{Q}^a=\textcolor{red}{\mathbf{E}}-\mathbf{W}\mathbf{W}^{\mathsf{T}}$.
+$\mathbf{Q}^a=\mathbf{E}-\mathbf{W}\mathbf{W}^{\mathsf{T}}$.
 The part-based AAM of~\cite{tzimiropoulos2014gauss} uses an alternating
 optimization similar to~\cite{tzimiropoulos2012generic}. Its project-out
 equivalent can be derived by using the above precision matrix.
 
 \textbf{BAAM-POIC}~\cite{alabort2014bayesian}. Similar to the AAM-POIC, the
 Bayesian AAM can be formulated by replacing the precision matrix with
-$\mathbf{Q}^a=\mathbf{W}\mathbf{D}^{-1}\mathbf{W}^{\mathsf{T}}+\frac{1}{\sigma^2}(\textcolor{red}{\mathbf{E}}-\mathbf{W}\mathbf{W}^{\mathsf{T}})$.
+$\mathbf{Q}^a=\mathbf{W}\mathbf{D}^{-1}\mathbf{W}^{\mathsf{T}}+\frac{1}{\sigma^2}(\mathbf{E}-\mathbf{W}\mathbf{W}^{\mathsf{T}})$.
 This precision matrix is derived by applying the Woodbury formula on the
 covariance matrix
-$\mathbf{W}\mathbf{D}\mathbf{W}^{\mathsf{T}}+\sigma^2\textcolor{red}{\mathbf{E}}$,
+$\mathbf{W}\mathbf{D}\mathbf{W}^{\mathsf{T}}+\sigma^2\mathbf{E}$,
 where $\sigma^2$ is the variance of the noise in the appearance subspace
 $\mathbf{W}$.
 %

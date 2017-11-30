@@ -24,17 +24,17 @@ denote the Hessian and Jacobian matrices, respectively, of the Gauss-Newton
 optimization algorithm per image $i=1,\ldots,N$ and per
 perturbation $j=1,\ldots,P$.
 $\lambda_k$ is a hyperparameter that controls the weighting between
-the regression-based descent directions and the Gauss-Newton \textcolor{red}{\st{gradient}}
+the regression-based descent directions and the Gauss-Newton
 descent directions at each level of the cascade $k=1,\ldots,K$.
-The negative sign in front of the \textcolor{red}{\st{gradient}Gauss-Newton} descent directions is
+The negative sign in front of the Gauss-Newton descent directions is
 due to the fact that the shape parameters update within the
 inverse Gauss-Newton optimization is performed with subtraction,
 as shown in Eq.~\ref{equ:shape_parameters_update}.
 
 %%%%%%%%%%%%%%%%%%%%%% T R A I N I N G %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Training}
-During training, ACR aims to learn a cascade of $K$ \textcolor{red}{\st{optimal}} linear regressors
-given the \textcolor{red}{\st{gradient}Gauss-Newton} descent directions of each training image at each level.
+During training, ACR aims to learn a cascade of $K$ linear regressors
+given the Gauss-Newton descent directions of each training image at each level.
 Let us assume that we have a set of $N$ training images
 $\{\mathbf{I}_1,\ldots,\mathbf{I}_N\}$ along with the corresponding ground
 truth shapes $\{\mathbf{s}_1,\ldots,\mathbf{s}_N\}$. We also assume that
@@ -89,7 +89,7 @@ These vectors are then concatenated in a single $mn\times NP$ matrix as
 %%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\paragraph{Step 3: \textcolor{red}{\st{Gradient}Gauss-Newton} Descent Directions} Compute the
+\paragraph{Step 3: Gauss-Newton Descent Directions} Compute the
 Gauss-Newton solutions for all the images and their perturbed shapes and
 concatenate them in a $n_s\times NP$ matrix as
 %%%%%%%%%%%%%%
@@ -156,7 +156,6 @@ $\forall i=1,\ldots,N$ and $\forall j=1,\ldots,P$. After obtaining
 $\mathbf{p}_{i,j}^{k+1}$, steps 1-5 are repeated for the next cascade level.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-{\color{red}
 \paragraph{Weighting Hyperparameters}
 $\lambda=\left[\lambda_1,\lambda_2,\ldots,\lambda_K\right]$ is a set of weights that
 control the linear combination between the regression-based descent directions and
@@ -169,7 +168,7 @@ with steps of large magnitude. Then, the Gauss-Newton descent steps are necessar
 in order to converge to an accurate local minimum.
 The hyperparameters $\lambda_k$ are fine-tuned by running extensive cross-validation
 experiments that perform grid search using the mean point-to-point error
-normalized with the interocular distance as evaluation criterion.}
+normalized with the interocular distance as evaluation criterion.
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% F I T T I N G %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%
